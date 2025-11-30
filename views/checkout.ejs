@@ -8,17 +8,20 @@
     <h2>Pay amount: ₹<%= displayAmount %> INR</h2>
     <button id="payBtn">Pay with Razorpay</button>
 
-    <!-- Inject safe JS variables -->
-    <script>
-      // These will be valid JS because controller supplies them
-      const AMOUNT_PAISA = <%= amount %>;                  // number, e.g. 20000
-      const RAZORPAY_KEY_ID = <%= JSON.stringify(key_id) %>; // quoted string safely
-    </script>
+    <!-- Put server values into DOM attributes (no EJS inside script) -->
+    <div id="rzp-data"
+         data-amount="<%= amount %>"
+         data-key="<%= key_id %>"
+         style="display:none;"></div>
 
     <script>
+      // Read safe values from DOM (editor sees plain JS — no EJS tags)
+      const dataEl = document.getElementById("rzp-data");
+      const AMOUNT_PAISA = Number(dataEl.getAttribute("data-amount"));
+      const RAZORPAY_KEY_ID = dataEl.getAttribute("data-key");
+
       document.getElementById("payBtn").addEventListener("click", async () => {
         try {
-          // Create order on server
           const res = await fetch("/payment/create-order", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -39,7 +42,6 @@
             description: "Test Transaction",
             order_id: order.id,
             handler: async function (response) {
-              // server-side verification
               const verify = await fetch("/payment/verify", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
