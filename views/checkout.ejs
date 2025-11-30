@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Checkout</title>
+  </head>
+  <body>
+    <h2>Pay amount: ₹<%= displayAmount %> INR</h2>
+    <button id="payBtn">Pay with Razorpay</button>
+
+    <!-- Inject safe JS variables -->
+    <script>
+      // These will be valid JS because controller supplies them
+      const AMOUNT_PAISA = <%= amount %>;                  // number, e.g. 20000
+      const RAZORPAY_KEY_ID = <%= JSON.stringify(key_id) %>; // quoted string safely
+    </script>
+
+    <script>
+      document.getElementById("payBtn").addEventListener("click", async () => {
+        try {
+          // Create order on server
+          const res = await fetch("/payment/create-order", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ amount: AMOUNT_PAISA })
+          });
+          const data = await res.json();
+          if (!data.success) {
+            alert("Order creation failed");
+            return;
+          }
+          const order = data.order;
+
+          const options = {
+            key: RAZORPAY_KEY_ID,
+            amount: order.amount,
+            currency: order.currency,
+            name: "Your Company / App",
+            description: "Test Transaction",
+            order_id: order.id,
+            handler: async function (response) {
+              // server-side verification
+              const verify = await fetch("/payment/verify", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(response)
+              });
+              const v = await verify.json();
+              if (v.success) {
+                window.location.href = "/payment-success";
+              } else {
+                alert("Payment verification failed");
+              }
+            },
+            prefill: {
+              name: "Test User",
+              email: "test@example.com",
+              contact: "9999999999"
+            },
+            theme: {
+              color: "#F37254"
+            }
+          };
+
+          const rzp = new Razorpay(options);
+          rzp.open();
+        } catch (err) {
+          console.error(err);
+          alert("Something went wrong — check console.");
+        }
+      });
+    </script>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  </body>
+</html>
