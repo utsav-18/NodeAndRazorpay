@@ -8,67 +8,72 @@
     <h2>Pay amount: ₹<%= displayAmount %> INR</h2>
     <button id="payBtn">Pay with Razorpay</button>
 
-    <!-- Put server values into DOM attributes (no EJS inside script) -->
     <div id="rzp-data"
          data-amount="<%= amount %>"
          data-key="<%= key_id %>"
          style="display:none;"></div>
 
     <script>
-      // Read safe values from DOM (editor sees plain JS — no EJS tags)
-      const dataEl = document.getElementById("rzp-data");
-      const AMOUNT_PAISA = Number(dataEl.getAttribute("data-amount"));
-      const RAZORPAY_KEY_ID = dataEl.getAttribute("data-key");
+      const dataEl = document.getElementById('rzp-data');
+      const AMOUNT_PAISA = Number(dataEl.getAttribute('data-amount'));
+      const RAZORPAY_KEY_ID = dataEl.getAttribute('data-key');
 
-      document.getElementById("payBtn").addEventListener("click", async () => {
+      document.getElementById('payBtn').addEventListener('click', async () => {
         try {
-          const res = await fetch("/payment/create-order", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
+          const res = await fetch('/payment/create-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ amount: AMOUNT_PAISA })
           });
+
           const data = await res.json();
+
           if (!data.success) {
-            alert("Order creation failed");
+            console.error('create-order failed response:', data);
+            alert('Order creation failed: ' + (data.error || JSON.stringify(data)));
             return;
           }
+
           const order = data.order;
 
           const options = {
             key: RAZORPAY_KEY_ID,
             amount: order.amount,
             currency: order.currency,
-            name: "Your Company / App",
-            description: "Test Transaction",
+            name: 'Demo App',
+            description: 'Test Transaction',
             order_id: order.id,
             handler: async function (response) {
-              const verify = await fetch("/payment/verify", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(response)
-              });
-              const v = await verify.json();
-              if (v.success) {
-                window.location.href = "/payment-success";
-              } else {
-                alert("Payment verification failed");
+              try {
+                const verify = await fetch('/payment/verify', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(response)
+                });
+                const v = await verify.json();
+                if (v.success) {
+                  window.location.href = '/payment-success';
+                } else {
+                  alert('Payment verification failed: ' + (v.error || v.message || JSON.stringify(v)));
+                }
+              } catch (e) {
+                console.error('verify request failed', e);
+                alert('Verification request failed — check console.');
               }
             },
             prefill: {
-              name: "Test User",
-              email: "test@example.com",
-              contact: "9999999999"
+              name: 'Test User',
+              email: 'test@example.com',
+              contact: '9999999999'
             },
-            theme: {
-              color: "#F37254"
-            }
+            theme: { color: '#F37254' }
           };
 
           const rzp = new Razorpay(options);
           rzp.open();
         } catch (err) {
-          console.error(err);
-          alert("Something went wrong — check console.");
+          console.error('create-order fetch failed', err);
+          alert('Network or server error — check console.');
         }
       });
     </script>
