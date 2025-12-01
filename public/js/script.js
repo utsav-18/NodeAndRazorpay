@@ -124,3 +124,24 @@ document.addEventListener('DOMContentLoaded', () => {
   // Also update on resize to ensure calculations remain correct
   window.addEventListener('resize', () => requestTick(), { passive: true });
 })();
+// simple countdown writer (defaults to 12 hours if OFFER_ENDS_AT empty)
+(function(){
+  const el = document.getElementById('sticky-countdown');
+  const OFFER_ENDS_AT = ''; // e.g. '2025-12-07T10:00:00+05:30'
+  let target;
+  if (OFFER_ENDS_AT && !isNaN(new Date(OFFER_ENDS_AT))) target = new Date(OFFER_ENDS_AT);
+  else { target = new Date(); target.setHours(target.getHours()+12); }
+  function fmt(diff){
+    const hrs = Math.floor((diff/ (1000*60*60)) % 24);
+    const mins = Math.floor((diff/ (1000*60)) % 60);
+    const secs = Math.floor((diff/1000) % 60);
+    return `${String(hrs).padStart(2,'0')}:${String(mins).padStart(2,'0')}:${String(secs).padStart(2,'0')}`;
+  }
+  function tick(){
+    const diff = Math.max(0, target - new Date());
+    if (el) el.textContent = fmt(diff);
+    if (diff<=0) clearInterval(t);
+  }
+  tick();
+  const t = setInterval(tick, 1000);
+})();
