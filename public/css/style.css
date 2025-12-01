@@ -21,14 +21,14 @@
         .alert-bar {
             background: linear-gradient(135deg, #c62828 0%, #b71c1c 100%); /* red gradient */
             color: white;
-            padding: 18px 40px;
+            padding: 12px 28px;
             border-radius: 15px;
             text-align: center;
             margin: 20px auto 30px;
             box-shadow: 0 8px 25px rgba(183, 28, 28, 0.35); /* red-tinted shadow */
-            font-size: 1.25rem;
+            font-size: 1rem;
             font-weight: 700;
-            animation: slideInDown 0.8s ease-out, alertPulse 2s ease-in-out 1s infinite;
+            animation: slideInDown 0.7s ease-out, alertPulse 2s ease-in-out 1s infinite;
             position: relative;
             overflow: hidden;
         }
@@ -97,7 +97,7 @@
         /* Hero Section */
         .hero {
             text-align: center;
-            padding: 60px 20px 40px;
+            padding: 20px 10px 20px;
         }
 
         .hero h1 {
@@ -133,7 +133,7 @@
             background: #ffffff;
             padding: 20px 30px;
             border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.12); /* neutral shadow */
+            box-shadow: 0 10px 30px rgba(0,0,0,0.0.8); /* neutral shadow */
             display: flex;
             align-items: center;
             gap: 15px;
