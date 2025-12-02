@@ -472,7 +472,7 @@ body {
 }
 
 .carousel-track {
-  display:flex; gap:18px; align-items:center; scroll-snap-type: x mandatory; overflow-x:auto; padding:12px; scroll-behavior:smooth;
+  display:flex; gap:18px; align-items:center; scroll-snap-type: none; overflow-x:auto; padding:12px; scroll-behavior:auto;
 }
 .carousel-track::-webkit-scrollbar { height:8px; }
 .carousel-track::-webkit-scrollbar-thumb { background: #ffdede; border-radius:8px; }

@@ -297,20 +297,24 @@
     const autoplayInterval = 4000;
     let timer = null;
 
-    function updateUI() {
-      const slide = slides[current];
-      if (slide) slide.scrollIntoView({ inline: 'center', behavior: 'smooth' });
+  function updateUI() {
+  const slide = slides[current];
+  if (slide) {
+    const left = (slide.offsetLeft + slide.offsetWidth / 2) - (track.clientWidth / 2);
+    // use smooth for interactions, but allow 'auto' for initial paint by checking a flag
+    track.scrollTo({ left, behavior: 'smooth' });
+  }
 
-      dotsList.forEach((d, i) => {
-        d.setAttribute('aria-selected', i === current ? 'true' : 'false');
-        d.classList.toggle('active', i === current);
-      });
+  dotsList.forEach((d, i) => {
+    d.setAttribute('aria-selected', i === current ? 'true' : 'false');
+    d.classList.toggle('active', i === current);
+  });
 
-      // highlight active thumbnail
-      thumbsList.forEach((t, i) => {
-        t.classList.toggle('active', i === current);
-      });
-    }
+  thumbsList.forEach((t, i) => {
+    t.classList.toggle('active', i === current);
+  });
+}
+
 
     function goto(index) {
       if (!slides.length) return;
