@@ -162,21 +162,20 @@
     }
     if (!target) {
       target = new Date();
-      target.setHours(target.getHours() + 12); // default 12 hours
+target.setMinutes(target.getMinutes() + 15);
+; // default 12 hours
     }
 
-    function formatTime(ms) {
-      const totalSecs = Math.floor(ms / 1000);
-      const days = Math.floor(totalSecs / 86400);
-      const hrs = Math.floor((totalSecs % 86400) / 3600);
-      const mins = Math.floor((totalSecs % 3600) / 60);
-      const secs = totalSecs % 60;
-      const hh = String(hrs).padStart(2, '0');
-      const mm = String(mins).padStart(2, '0');
-      const ss = String(secs).padStart(2, '0');
-      if (days > 0) return `${days}d ${hh}:${mm}:${ss}`;
-      return `${hh}:${mm}:${ss}`;
-    }
+function formatTime(ms) {
+  const totalSecs = Math.floor(ms / 1000);
+  const mins = Math.floor(totalSecs / 60);
+  const secs = totalSecs % 60;
+
+  const mm = String(mins).padStart(2, '0');
+  const ss = String(secs).padStart(2, '0');
+
+  return `${mm}:${ss} mins left`;
+}
 
     let intervalId = null;
     function tick() {
