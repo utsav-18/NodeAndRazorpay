@@ -4,10 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Checkout</title>
-
   <style>
-    /* ---- base (taken + adapted from your snippet) ---- */
+    /* (styles same as your polished version) */
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    html,body { height: 100%; }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(135deg, #ffffff 0%, #fff5f5 100%);
@@ -27,165 +27,54 @@
       max-width: 980px;
       margin: 0 auto;
       padding: 24px;
+      animation: containerEntry 0.45s cubic-bezier(.2,.9,.2,1);
     }
+    @keyframes containerEntry { from { transform: translateY(8px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-    /* Alert Bar */
-    .alert-bar {
-      background: linear-gradient(135deg, #c62828 0%, #b71c1c 100%);
-      color: #fff;
-      padding: 10px 18px;
-      border-radius: 12px;
-      text-align: center;
-      margin-bottom: 22px;
-      box-shadow: 0 8px 25px rgba(183,28,28,0.25);
-      font-size: 0.98rem;
-      font-weight: 700;
-      position: relative;
-      overflow: hidden;
-      animation: slideInDown 0.6s ease-out;
-    }
+    .alert-bar { background: linear-gradient(135deg, #c62828 0%, #b71c1c 100%); color: #fff; padding: 10px 18px; border-radius: 12px; text-align: center; margin-bottom: 22px; box-shadow: 0 12px 30px rgba(183,28,28,0.14); font-size: 0.98rem; font-weight: 700; position: relative; overflow: hidden; animation: slideInDown 0.6s ease-out, alertPulse 2.6s ease-in-out 0.9s infinite; }
+    @keyframes slideInDown { from { transform: translateY(-10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes alertPulse { 0% { box-shadow: 0 8px 25px rgba(183,28,28,0.22); transform: translateY(0); } 50% { box-shadow: 0 18px 45px rgba(183,28,28,0.12); transform: translateY(-2px); } 100% { box-shadow: 0 8px 25px rgba(183,28,28,0.22); transform: translateY(0); } }
 
-    @keyframes slideInDown {
-      from { transform: translateY(-10px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-
-    /* Layout */
-    .layout {
-      display: grid;
-      grid-template-columns: 1fr 420px;
-      gap: 28px;
-      align-items: start;
-    }
-
-    /* Left: Info / details */
-    .info {
-      background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.95));
-      padding: 22px;
-      border-radius: 14px;
-      box-shadow: 0 8px 30px rgba(15,15,15,0.04);
-    }
-    .info h1 {
-      font-size: 1.25rem;
-      margin-bottom: 8px;
-      color: #111;
-    }
+    .layout { display: grid; grid-template-columns: 1fr 420px; gap: 28px; align-items: start; margin-top: 4.5rem; }
+    .info { background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(255,255,255,0.98)); padding: 22px; border-radius: 14px; box-shadow: 0 10px 40px rgba(16,24,40,0.04); transition: transform .35s cubic-bezier(.2,.9,.2,1), box-shadow .35s; }
+    .info:hover { transform: translateY(-6px); box-shadow: 0 22px 60px rgba(16,24,40,0.06); }
+    .info h1 { font-size: 1.25rem; margin-bottom: 8px; color: #111; }
     .info p { color: #444; line-height: 1.5; font-size: 0.95rem; margin-bottom: 14px; }
+    .price-chip { display: inline-block; background: linear-gradient(90deg,#6c63ff,#8e7bff); color: #fff; padding: 8px 12px; border-radius: 999px; font-weight: 700; margin-top: 8px; letter-spacing: .2px; box-shadow: 0 12px 36px rgba(108,99,255,0.14); transition: transform .22s ease; }
+    .price-chip:hover { transform: translateY(-4px); }
 
-    .price-chip {
-      display: inline-block;
-      background: linear-gradient(90deg,#6c63ff,#8e7bff);
-      color: #fff;
-      padding: 8px 12px;
-      border-radius: 999px;
-      font-weight: 700;
-      margin-top: 8px;
-      box-shadow: 0 8px 20px rgba(108,99,255,0.18);
-    }
-
-    /* Right: Checkout Card */
-    .checkout-card {
-      background: #fff;
-      padding: 22px;
-      border-radius: 14px;
-      box-shadow: 0 10px 40px rgba(16,24,40,0.06);
-    }
-
-    .card-title {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      margin-bottom: 12px;
-    }
+    .checkout-card { background: linear-gradient(180deg, #ffffff, #fbfdff); padding: 22px; border-radius: 16px; box-shadow: 0 18px 60px rgba(16,24,40,0.06); position: relative; overflow: hidden; }
+    .card-title { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom: 14px; }
     .card-title h2 { font-size:1.15rem; color:#111; }
     .small-muted { font-size:0.88rem; color:#6b7280; }
 
-    .form-group { margin-bottom: 14px; }
-    label {
-      display:block;
-      font-size:0.86rem;
-      color:#374151;
-      margin-bottom:6px;
-      font-weight:600;
-    }
-    input, select {
-      width:100%;
-      padding: 10px 12px;
-      border-radius: 10px;
-      border: 1px solid #e6e9ef;
-      font-size: 0.96rem;
-      outline: none;
-      transition: 0.18s ease;
-      background: #fbfdff;
-    }
-    input:focus { box-shadow: 0 6px 18px rgba(99,102,241,0.12); border-color: #6c63ff; }
+    .form-group { margin-bottom: 14px; position: relative; }
+    label { display:block; font-size:0.86rem; color:#374151; margin-bottom:6px; font-weight:600; }
+    input, select { width:100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #e6e9ef; font-size: 0.96rem; outline: none; transition: 0.18s ease, box-shadow .18s ease, transform .12s ease; background: #fff; }
+    input::placeholder { color: #9aa0a6; }
+    input:focus { box-shadow: 0 12px 30px rgba(108,99,255,0.12); border-color: #6c63ff; transform: translateY(-2px); }
 
-    .actions {
-      margin-top: 10px;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-    }
-    .btn {
-      display:inline-block;
-      padding: 12px;
-      border-radius: 10px;
-      border: none;
-      cursor: pointer;
-      font-weight: 700;
-      font-size: 1rem;
-    }
-    .btn-primary {
-      background: linear-gradient(90deg,#6c63ff,#8e7bff);
-      color:#fff;
-      box-shadow: 0 10px 30px rgba(108,99,255,0.16);
-    }
-    .btn-ghost {
-      background: transparent;
-      color: #6b7280;
-      border: 1px solid #e6e9ef;
-    }
+    .actions { margin-top: 10px; display:flex; flex-direction:column; gap:10px; }
 
-    .meta {
-      margin-top:12px;
-      font-size:0.9rem;
-      color:#6b7280;
-    }
+    :root { --btn-shadow: 0 12px 30px rgba(16,24,40,0.08); --btn-shadow-strong: 0 18px 50px rgba(108,99,255,0.16); }
 
-    /* small helper */
+    .btn, .homebtn { display:inline-block; padding: 12px 14px; border-radius: 20px; border: none; cursor: pointer; font-weight: 700; font-size: 1rem; box-shadow: var(--btn-shadow); transition: transform .14s cubic-bezier(.2,.9,.2,1), box-shadow .14s cubic-bezier(.2,.9,.2,1), opacity .12s; position: relative; overflow: hidden; }
+    .btn-primary { background: linear-gradient(90deg,#6c63ff,#8e7bff); color:#fff; }
+    .btn-ghost, .homebtn { background: transparent; color: #6b7280; border: 1px solid #e6e9ef; }
+    .btn:hover, .homebtn:hover, .btn:focus, .homebtn:focus { transform: translateY(-3px); box-shadow: var(--btn-shadow-strong); outline: none; opacity: 0.98; }
+    .btn:active, .homebtn:active { transform: translateY(0px) scale(.995); box-shadow: 0 8px 20px rgba(16,24,40,0.06); }
+    .meta { margin-top:12px; font-size:0.9rem; color:#6b7280; }
     .error { color:#b91c1c; font-size:0.87rem; margin-top:6px; display:none; }
 
-    /* responsive */
-    @media (max-width: 900px) {
-      .layout { grid-template-columns: 1fr; }
-      .checkout-card { order: 2; margin-top: 12px; }
-      .info { order: 1; }
-      .container { padding: 18px; }
-      .checkout-card, .info { padding: 18px; }
-    }
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .checkout-card { order: 2; margin-top: 12px; } .info { order: 1; } .container { padding: 18px; } .checkout-card, .info { padding: 18px; } }
+    @media (max-width: 420px) { body { padding: 5px; } .checkout-card { padding: 12px; border-radius: 12px; } .info { padding: 12px; border-radius: 12px; margin-top: -12px; } .price-chip { font-size: 0.95rem; padding: 7px 10px; } input { padding: 10px; font-size: 0.95rem; } .layout { margin-top: 2.5rem; gap: 12px; } }
 
-    @media (max-width: 420px) {
-      body { padding: 5px; }
-      .checkout-card { padding: 12px; border-radius: 12px; }
-      .info { padding: 16px; border-radius: 12px; margin-top: -4rem;}
-      .price-chip { font-size: 0.95rem; padding: 7px 10px; }
-      input { padding: 10px; font-size: 0.95rem; }
-    }
-    .layout{
-      margin-top:5rem;
-    }
   </style>
-  
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/style/.css">
 </head>
 <body>
   <div class="container">
-
-    <div class="alert-bar">
-      <span class="price-highlight">Limited Offer just at Rs. 199/-</span>
-            instead of <span class="old-price">Rs. 2999</span>.
-    </div>
+    <div class="alert-bar" role="status">TEST MODE — No real money will be charged. Use test card details.</div>
 
     <div class="layout">
       <div class="info" aria-hidden="false">
@@ -195,7 +84,9 @@
         <div style="margin-top:12px;">
           <div class="small-muted">Amount to pay</div>
           <div class="price-chip">₹<%= (amount/100).toFixed(2) %></div>
-          <a href="/"><button id="cancelBtn" class="btn btn-ghost homebtn" type="button">Go Back to home page</button></a>
+          <div style="margin-top:10px;">
+            <a href="/"><button class="homebtn btn-ghost" type="button">Go Back to home page</button></a>
+          </div>
         </div>
 
         <div class="meta">
@@ -239,14 +130,11 @@
         </form>
       </aside>
     </div> <!-- layout -->
-
   </div> <!-- container -->
 
-  <!-- hidden server values -->
   <div id="rzp-data" data-amount="<%= amount %>" data-key="<%= key_id %>" style="display:none"></div>
 
   <script>
-    // read safe values from DOM
     const dataEl = document.getElementById('rzp-data');
     const AMOUNT_PAISA = Number(dataEl.getAttribute('data-amount'));
     const RAZORPAY_KEY_ID = dataEl.getAttribute('data-key');
@@ -257,24 +145,32 @@
     const emailInput = document.getElementById('custEmail');
     const phoneInput = document.getElementById('custPhone');
 
-    // simple validators
-    function isValidEmail(v) {
-      return /\S+@\S+\.\S+/.test(v);
-    }
-
-    function showError(id, show) {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.style.display = show ? 'block' : 'none';
-    }
+    function isValidEmail(v) { return /\S+@\S+\.\S+/.test(v); }
+    function showError(id, show) { const el = document.getElementById(id); if (!el) return; el.style.display = show ? 'block' : 'none'; }
 
     cancelBtn.addEventListener('click', () => {
-      // reset form
       nameInput.value = '';
       emailInput.value = '';
       phoneInput.value = '';
       showError('errName', false);
       showError('errEmail', false);
+    });
+
+    // ripple on pay (small decorative)
+    payBtn.addEventListener('mousedown', (e) => {
+      const circle = document.createElement('span');
+      circle.style.position = 'absolute';
+      circle.style.borderRadius = '50%';
+      circle.style.background = 'rgba(255,255,255,0.28)';
+      const d = Math.max(payBtn.clientWidth, payBtn.clientHeight);
+      circle.style.width = circle.style.height = d + 'px';
+      const rect = payBtn.getBoundingClientRect();
+      circle.style.left = (e.clientX - rect.left - d/2) + 'px';
+      circle.style.top = (e.clientY - rect.top - d/2) + 'px';
+      circle.style.transform = 'scale(0)';
+      circle.style.transition = 'all 0.6s linear';
+      payBtn.appendChild(circle);
+      setTimeout(()=> circle.remove(), 650);
     });
 
     payBtn.addEventListener('click', async () => {
@@ -285,14 +181,12 @@
       let ok = true;
       if (!name) { showError('errName', true); ok = false; } else { showError('errName', false); }
       if (!email || !isValidEmail(email)) { showError('errEmail', true); ok = false; } else { showError('errEmail', false); }
-
       if (!ok) return;
 
       payBtn.disabled = true;
       payBtn.textContent = 'Opening payment...';
 
       try {
-        // create order on server
         const createRes = await fetch('/payment/create-order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -310,7 +204,6 @@
 
         const order = createData.order;
 
-        // build options for Razorpay
         const options = {
           key: RAZORPAY_KEY_ID,
           amount: order.amount,
@@ -318,29 +211,26 @@
           name: name,
           description: 'Order Payment',
           order_id: order.id,
-          prefill: {
-            name: name,
-            email: email,
-            contact: phone || "9999999999"
-          },
+          prefill: { name: name, email: email, contact: phone || "9999999999" },
           theme: { color: '#6c63ff' },
 
           handler: async function (response) {
-            // send verification request (also pass name/email/amount)
             try {
               const verifyRes = await fetch('/payment/verify', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  ...response,
-                  name,
-                  email,
-                  amount: AMOUNT_PAISA
-                })
+                body: JSON.stringify({ ...response, name, email, amount: AMOUNT_PAISA })
               });
               const v = await verifyRes.json();
               if (v.success) {
-                window.location.href = '/payment-success';
+                // redirect using server response values
+                const q = new URLSearchParams({
+                  order_id: v.order_id || response.razorpay_order_id || '',
+                  payment_id: v.payment_id || response.razorpay_payment_id || '',
+                  amount: String(v.amount || AMOUNT_PAISA),
+                  receipt: v.receipt || ''
+                }).toString();
+                window.location.href = '/payment-success?' + q;
               } else {
                 alert('Payment verification failed: ' + (v.error || v.message || 'Unknown'));
                 payBtn.disabled = false;
@@ -356,7 +246,6 @@
 
           modal: {
             ondismiss: function() {
-              // if user closes popup
               payBtn.disabled = false;
               payBtn.textContent = 'Pay ₹' + (AMOUNT_PAISA/100).toFixed(2);
             }
