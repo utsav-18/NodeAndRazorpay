@@ -137,7 +137,7 @@ body {
 
 /* Instructor card */
 .instructor-card {
-  background: linear-gradient(135deg, #fdede9 0%, #f7e1dd 100%);
+  background: linear-gradient(135deg, #fdede9 0%, #f7e1dd 100%) !important;
   border-radius: 20px;
   padding: 50px 30px 30px;
   box-shadow: 0 10px 40px rgba(183, 28, 28, 0.08);
@@ -145,6 +145,10 @@ body {
   transition: transform 0.3s ease;
   opacity: 1;
   transform: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
 }
 .instructor-card:hover {
   transform: translateY(-6px);
@@ -157,7 +161,7 @@ body {
   border-radius: 22px;
   padding: 2px;
   background: linear-gradient(135deg,#ffb3b3,#e28484,#fa9797);
-  /* -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); */
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
           mask-composite: exclude;
   pointer-events: none;
