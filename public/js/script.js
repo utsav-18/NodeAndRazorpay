@@ -1,180 +1,159 @@
-/* Improved, robust, accessible UI script
-   - IntersectionObserver with safe unobserve
-   - honors prefers-reduced-motion
-   - efficient hero parallax using rAF
-   - accessible countdown with pause-on-hidden and days support
-   - smoother anchor fallback
-*/
-
+/* script.js — cleaned, robust, accessible */
 (() => {
   'use strict';
 
-  /* ---------- Utils ---------- */
-  const $ = (sel, ctx = document) => ctx.querySelector(sel);
-  const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
-  const isElement = v => v && v.nodeType === 1;
+  /* ---------- tiny helpers ---------- */
+  const $ = (sel, ctx = document) => (ctx || document).querySelector(sel);
+  const $$ = (sel, ctx = document) => Array.from((ctx || document).querySelectorAll(sel));
+  const isReducedMotion = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   /* ---------- Respect prefers-reduced-motion ---------- */
-  const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-  function reduceMotionApply() {
-    if (motionQuery.matches) {
-      // Add a helper class so CSS can opt-out cleanly
-      document.documentElement.classList.add('reduced-motion');
-    } else {
-      document.documentElement.classList.remove('reduced-motion');
+  (function applyReducedMotionClass() {
+    try {
+      const mq = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
+      const setClass = () => {
+        if (mq && mq.matches) document.documentElement.classList.add('reduced-motion');
+        else document.documentElement.classList.remove('reduced-motion');
+      };
+      setClass();
+      if (mq) {
+        if (typeof mq.addEventListener === 'function') mq.addEventListener('change', setClass);
+        else if (typeof mq.addListener === 'function') mq.addListener(setClass);
+      }
+    } catch (e) { /* ignore */ }
+  })();
+
+  /* --------------------------
+     IntersectionObserver: reveal elements (cards, instructor, etc)
+     -------------------------- */
+  function initInViewObserver() {
+    if (!('IntersectionObserver' in window)) {
+      // fallback: add classes immediately
+      $$('.instructor-card, .video-container, .bonus-banner, .companies-section, .card').forEach(el => el.classList.add('animate-in', 'visible'));
+      return;
     }
+
+    const io = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target;
+        if (document.documentElement.classList.contains('reduced-motion')) el.classList.add('animate-in', 'reduced-motion-applied');
+        else el.classList.add('animate-in');
+
+        // if card(s), also reveal children nicely
+        if (el.classList.contains('instructor-card')) {
+          $('.instructor-badge', el)?.classList.add('animate-in');
+          $('.instructor-image', el)?.classList.add('animate-in');
+          $('.instructor-details', el)?.classList.add('animate-in');
+        }
+
+        try { obs.unobserve(el); } catch (err) { /* ignore */ }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -100px 0px' });
+
+    // observe
+    const watch = ['.instructor-card', '.video-container', '.bonus-banner', '.companies-section', '.card'];
+    watch.forEach(sel => $$(sel).forEach(el => io.observe(el)));
   }
-  reduceMotionApply();
-  if (typeof motionQuery.addEventListener === 'function') {
-    motionQuery.addEventListener('change', reduceMotionApply);
-  } else if (typeof motionQuery.addListener === 'function') {
-    motionQuery.addListener(reduceMotionApply);
-  }
 
-  /* ---------- IntersectionObserver for in-view animations ---------- */
-  const observerOptions = {
-    threshold: 0.15,
-    rootMargin: '0px 0px -100px 0px'
-  };
-
-  const io = new IntersectionObserver((entries, obs) => {
-    entries.forEach(entry => {
-      if (!entry.isIntersecting) return;
-      const el = entry.target;
-      // If reduced motion, simply add class immediately but do not animate
-      if (document.documentElement.classList.contains('reduced-motion')) {
-        el.classList.add('animate-in', 'reduced-motion-applied');
-      } else {
-        el.classList.add('animate-in');
-      }
-
-      // Animate known children for instructor card
-      if (el.classList.contains('instructor-card')) {
-        const badge = $('.instructor-badge', el);
-        const image = $('.instructor-image', el);
-        const details = $('.instructor-details', el);
-        if (badge) badge.classList.add('animate-in');
-        if (image) image.classList.add('animate-in');
-        if (details) details.classList.add('animate-in');
-      }
-
-      // Unobserve to reduce work (safe if you don't want repeated trigger)
-      try { obs.unobserve(el); } catch (e) { /* ignore */ }
-    });
-  }, observerOptions);
-
-  // Observe elements we care about
-  document.addEventListener('DOMContentLoaded', () => {
-    const selectors = ['.instructor-card', '.video-container', '.bonus-banner', '.companies-section'];
-    selectors.forEach(sel => {
-      $$(sel).forEach(el => io.observe(el));
-    });
-  });
-
-  /* ---------- Smooth scroll for same-page anchors (progressive & accessible) ---------- */
-  function smoothScrollInit() {
-    // Only enable if browser supports scrollIntoView with behavior
+  /* --------------------------
+     Smooth anchor scrolling (progressive, accessible)
+     -------------------------- */
+  function initSmoothAnchors() {
     const supportsSmooth = 'scrollBehavior' in document.documentElement.style;
     $$('a[href^="#"]').forEach(a => {
       a.addEventListener('click', function (evt) {
         const href = this.getAttribute('href');
-        if (!href || href === '#') return; // allow normal behaviour for #
+        if (!href || href === '#') return;
         const target = document.querySelector(href);
         if (!target) return;
         evt.preventDefault();
 
-        // ensure target is focusable for accessibility after scroll
-        const prevTabindex = target.getAttribute('tabindex');
-        if (!target.hasAttribute('tabindex')) target.setAttribute('tabindex', '-1');
+        // make target focusable, then scroll and focus
+        const hadTab = target.hasAttribute('tabindex');
+        const prevTab = target.getAttribute('tabindex');
+        if (!hadTab) target.setAttribute('tabindex', '-1');
 
         if (supportsSmooth) {
           target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          // move focus after a small delay to let the scroll settle (works with reduced-motion off)
-          setTimeout(() => target.focus({ preventScroll: true }), 400);
+          setTimeout(() => target.focus({ preventScroll: true }), 420);
         } else {
-          // fallback: jump and focus immediately
           target.scrollIntoView(true);
           target.focus({ preventScroll: true });
         }
 
-        // restore tabindex if it was not present originally
-        if (prevTabindex === null) {
-          setTimeout(() => target.removeAttribute('tabindex'), 1200);
-        } else if (prevTabindex !== null) {
-          target.setAttribute('tabindex', prevTabindex);
-        }
+        // restore original tabindex after a moment
+        setTimeout(() => {
+          if (!hadTab) target.removeAttribute('tabindex');
+          else if (prevTab !== null) target.setAttribute('tabindex', prevTab);
+        }, 1200);
       }, { passive: true });
     });
   }
-  document.addEventListener('DOMContentLoaded', smoothScrollInit);
 
-  /* ---------- Hero parallax / transform (rAF + passive scroll) ---------- */
-  (function heroParallax() {
-    const hero = document.querySelector('.hero');
+  /* --------------------------
+     Hero parallax (rAF) — gentle transform + opacity
+     -------------------------- */
+  function initHeroParallax() {
+    const hero = $('.hero');
     if (!hero) return;
-    // micro-optimizations
     hero.style.willChange = 'transform, opacity';
 
-    let latestY = 0;
+    let latestY = window.scrollY || 0;
     let ticking = false;
-    const windowH = () => (window.innerHeight || document.documentElement.clientHeight);
 
-    function onScroll() {
-      latestY = window.scrollY || window.pageYOffset || document.documentElement.scrollTop || 0;
-      requestTick();
-    }
-    function requestTick() {
-      if (!ticking) {
-        requestAnimationFrame(update);
-        ticking = true;
-      }
-    }
     function update() {
+      const vh = window.innerHeight || document.documentElement.clientHeight;
       const scrolled = latestY;
-      const vh = windowH();
       if (scrolled < vh) {
-        // gentle transform — clamp values
         const translateY = Math.min(80, Math.round(scrolled * 0.25));
         const opacity = Math.max(0.5, 1 - (scrolled / (vh * 1.6)));
         hero.style.transform = `translateY(${translateY}px)`;
         hero.style.opacity = String(opacity);
       } else {
-        // keep it simple once out of view
         hero.style.transform = '';
         hero.style.opacity = '';
       }
       ticking = false;
     }
 
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', () => requestTick(), { passive: true });
-    // initial tick in case page loads mid-scroll
-    requestTick();
-  })();
+    function onScroll() {
+      latestY = window.scrollY || window.pageYOffset || 0;
+      if (!ticking) {
+        requestAnimationFrame(update);
+        ticking = true;
+      }
+    }
 
-  /* ---------- Accessible Countdown Timer ---------- */
-  (function countdownFactory() {
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', () => { if (!ticking) requestAnimationFrame(update); }, { passive: true });
+    requestAnimationFrame(update);
+  }
+
+  /* --------------------------
+     Countdown (accessible) — updates #sticky-countdown
+     -------------------------- */
+  function initCountdown() {
     const el = document.getElementById('sticky-countdown');
     if (!el) return;
 
-    // ARIA live container for screen readers
-    let liveRegion = document.getElementById('sticky-countdown-live');
-    if (!liveRegion) {
-      liveRegion = document.createElement('div');
-      liveRegion.id = 'sticky-countdown-live';
-      liveRegion.setAttribute('aria-live', 'polite');
-      liveRegion.setAttribute('aria-atomic', 'true');
-      liveRegion.style.position = 'absolute';
-      liveRegion.style.left = '-9999px';
-      liveRegion.style.width = '1px';
-      liveRegion.style.height = '1px';
-      liveRegion.style.overflow = 'hidden';
-      document.body.appendChild(liveRegion);
+    // create hidden live region for screen readers
+    let live = document.getElementById('sticky-countdown-live');
+    if (!live) {
+      live = document.createElement('div');
+      live.id = 'sticky-countdown-live';
+      live.setAttribute('aria-live', 'polite');
+      live.setAttribute('aria-atomic', 'true');
+      live.style.position = 'absolute';
+      live.style.left = '-9999px';
+      live.style.width = '1px';
+      live.style.height = '1px';
+      live.style.overflow = 'hidden';
+      document.body.appendChild(live);
     }
 
-    // Accept ISO timestamp or fallback (12 hours)
     const OFFER_ENDS_AT = (typeof window.OFFER_ENDS_AT === 'string') ? window.OFFER_ENDS_AT.trim() : '';
-    let target;
+    let target = null;
     if (OFFER_ENDS_AT) {
       const parsed = new Date(OFFER_ENDS_AT);
       if (!isNaN(parsed)) target = parsed;
@@ -184,7 +163,6 @@
       target.setHours(target.getHours() + 12); // default 12 hours
     }
 
-    // Format helper - include days if > 24h
     function formatTime(ms) {
       const totalSecs = Math.floor(ms / 1000);
       const days = Math.floor(totalSecs / 86400);
@@ -194,81 +172,343 @@
       const hh = String(hrs).padStart(2, '0');
       const mm = String(mins).padStart(2, '0');
       const ss = String(secs).padStart(2, '0');
-
-      if (days > 0) {
-        return `${days}d ${hh}:${mm}:${ss}`;
-      }
+      if (days > 0) return `${days}d ${hh}:${mm}:${ss}`;
       return `${hh}:${mm}:${ss}`;
     }
 
-    // Update loop with visibility optimization
     let intervalId = null;
-    let running = false;
-
-    function updateOnce() {
+    function tick() {
       const now = new Date();
       const diff = Math.max(0, target - now);
       el.textContent = formatTime(diff);
-      liveRegion.textContent = `Offer ends in ${diff > 0 ? formatTime(diff) : 'now'}`;
+      live.textContent = `Offer ends in ${diff > 0 ? formatTime(diff) : 'now'}`;
       if (diff <= 0) {
         stop();
-        // optional: fire an event so page can react
-        const doneEvent = new CustomEvent('offer-ended', { detail: { target } });
-        window.dispatchEvent(doneEvent);
+        window.dispatchEvent(new CustomEvent('offer-ended', { detail: { target } }));
       }
     }
-
     function start() {
-      if (running) return;
-      updateOnce();
-      intervalId = window.setInterval(updateOnce, 1000);
-      running = true;
+      if (intervalId) return;
+      tick();
+      intervalId = setInterval(tick, 1000);
     }
-
     function stop() {
-      if (intervalId) {
-        clearInterval(intervalId);
-        intervalId = null;
-      }
-      running = false;
+      if (intervalId) clearInterval(intervalId);
+      intervalId = null;
     }
 
-    // Pause the timer when the tab is hidden (saves CPU)
     document.addEventListener('visibilitychange', () => {
       if (document.hidden) stop();
       else start();
     });
 
-    // Start initially, but defer first tick so fast loads don't block paint
     if (document.hidden) {
-      // wait until visible
       document.addEventListener('visibilitychange', function onv() {
         if (!document.hidden) {
           document.removeEventListener('visibilitychange', onv);
           start();
         }
       });
-    } else {
-      start();
-    }
-  })();
+    } else start();
+  }
 
-  /* ---------- Safe DOMContentLoaded helpers for other init code ---------- */
-  document.addEventListener('DOMContentLoaded', () => {
-    // Example: attach click handler for sticky register button to focus first form input (optional)
-    const reg = document.getElementById('sticky-register');
-    if (reg) {
-      reg.addEventListener('click', (e) => {
-        // If you have a registration form, focus the primary input for accessibility
-        const firstInput = document.querySelector('form input, form button, #register-form input, #register-form button');
-        if (firstInput) {
-          firstInput.focus({ preventScroll: true });
-        }
-        // Otherwise, navigate to a registration anchor (progressive)
-        const href = reg.getAttribute('data-href') || '#';
-        if (href && href !== '#') window.location.href = href;
+  /* --------------------------
+     Cards reveal (staggered) — uses data-delay attribute
+     -------------------------- */
+  function initCardReveal() {
+    const cards = $$('.card');
+    if (!cards.length) return;
+
+    cards.forEach(card => {
+      const d = card.getAttribute('data-delay') || '0';
+      card.style.setProperty('--delay', `${d}ms`);
+    });
+
+    if (!('IntersectionObserver' in window)) {
+      cards.forEach(c => c.classList.add('visible'));
+      return;
+    }
+
+    const cardObserver = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target;
+        // small extra micro-stagger so they pop in sequence visually
+        setTimeout(() => el.classList.add('visible'), 20);
+        try { obs.unobserve(el); } catch (e) { /* ignore */ }
+      });
+    }, { threshold: 0.12 });
+
+    cards.forEach(c => cardObserver.observe(c));
+  }
+
+  /* --------------------------
+     Carousel + thumbnails + modal
+     -------------------------- */
+  function initCarousel() {
+    const carousel = $('.carousel');
+    const track = $('.carousel-track');
+    if (!carousel || !track) return;
+
+    const slides = $$('.slide', track);
+    if (!slides.length) return;
+
+    const prevBtn = $('.nav.prev', carousel);
+    const nextBtn = $('.nav.next', carousel);
+    const dots = $$('.dot', carousel);
+    const thumbs = $$('.thumbs img', carousel);
+    const modal = $('.modal');
+    const modalImg = $('.modal-img', modal || document);
+    const modalClose = $('.modal-close', modal || document);
+    const modalPrev = $('.modal-prev', modal || document);
+    const modalNext = $('.modal-next', modal || document);
+
+    // ensure slides have correct data-index if missing
+    slides.forEach((s, i) => {
+      if (!s.hasAttribute('data-index')) s.setAttribute('data-index', String(i));
+      else s.setAttribute('data-index', String(i)); // normalize duplicates
+    });
+
+    // if dots exist but not matching slide count, try to create / fix them
+    if (!dots.length) {
+      const dotsWrap = document.createElement('div');
+      dotsWrap.className = 'dots';
+      dotsWrap.setAttribute('role', 'tablist');
+      slides.forEach((_, i) => {
+        const b = document.createElement('button');
+        b.className = 'dot';
+        b.setAttribute('role', 'tab');
+        b.dataset.index = String(i);
+        if (i === 0) b.setAttribute('aria-selected', 'true');
+        else b.setAttribute('aria-selected', 'false');
+        dotsWrap.appendChild(b);
+      });
+      carousel.appendChild(dotsWrap);
+    }
+
+    // re-query dots/ thumbs after possible creation
+    const dotsList = $$('.dot', carousel);
+    const thumbsList = $$('.thumbs img', carousel);
+
+    let current = 0;
+    let autoplay = true;
+    const autoplayInterval = 4000;
+    let timer = null;
+
+    function updateUI() {
+      const slide = slides[current];
+      if (slide) slide.scrollIntoView({ inline: 'center', behavior: 'smooth' });
+
+      dotsList.forEach((d, i) => {
+        d.setAttribute('aria-selected', i === current ? 'true' : 'false');
+        d.classList.toggle('active', i === current);
+      });
+
+      // highlight active thumbnail
+      thumbsList.forEach((t, i) => {
+        t.classList.toggle('active', i === current);
       });
     }
+
+    function goto(index) {
+      if (!slides.length) return;
+      current = ((index % slides.length) + slides.length) % slides.length;
+      updateUI();
+    }
+
+    // safe attachers
+    prevBtn?.addEventListener('click', () => { goto(current - 1); pauseAutoplay(); });
+    nextBtn?.addEventListener('click', () => { goto(current + 1); pauseAutoplay(); });
+
+    dotsList.forEach(d => d.addEventListener('click', (e) => {
+      const idx = Number(e.currentTarget.dataset.index || 0);
+      goto(idx);
+      pauseAutoplay();
+    }));
+
+    // keyboard left/right when track focused
+    track.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') { goto(current - 1); pauseAutoplay(); }
+      if (e.key === 'ArrowRight') { goto(current + 1); pauseAutoplay(); }
+    });
+
+    function startAutoplay() {
+      if (!autoplay || timer) return;
+      timer = setInterval(() => goto(current + 1), autoplayInterval);
+    }
+    function pauseAutoplay() {
+      autoplay = false;
+      if (timer) clearInterval(timer);
+      timer = null;
+    }
+
+    // pause on hover/focus
+    carousel.addEventListener('mouseenter', () => { if (timer) clearInterval(timer); });
+    carousel.addEventListener('mouseleave', () => { if (autoplay) startAutoplay(); });
+    track.addEventListener('focusin', () => { if (timer) clearInterval(timer); });
+    track.addEventListener('focusout', () => { if (autoplay) startAutoplay(); });
+
+    // thumbs click
+    thumbsList.forEach((t, i) => t.addEventListener('click', () => { goto(i); pauseAutoplay(); }));
+
+    // click slide image to open modal
+    slides.forEach((s, i) => {
+      const img = $('img', s);
+      if (!img) return;
+      img.style.cursor = 'zoom-in';
+      img.addEventListener('click', () => openModal(i));
+    });
+
+    // modal helpers
+    function openModal(index) {
+      if (!modal) return;
+      const slide = slides[index];
+      if (!slide) return;
+      const img = $('img', slide);
+      if (!img) return;
+      const full = img.dataset.full || img.currentSrc || img.src;
+      modalImg && (modalImg.src = full);
+      modalImg && (modalImg.alt = img.alt || '');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      modal.dataset.index = String(index);
+      // ensure visible
+      modal.style.display = 'flex';
+      modal.focus?.();
+    }
+    function closeModal() {
+      if (!modal) return;
+      modal.setAttribute('aria-hidden', 'true');
+      modal.style.display = 'none';
+      if (modalImg) modalImg.src = '';
+      document.body.style.overflow = '';
+      delete modal.dataset.index;
+    }
+
+    modalClose?.addEventListener('click', closeModal);
+    modal?.addEventListener('click', (ev) => { if (ev.target === modal) closeModal(); });
+    modalPrev?.addEventListener('click', () => {
+      const idx = Number(modal?.dataset.index || 0);
+      openModal((idx - 1 + slides.length) % slides.length);
+    });
+    modalNext?.addEventListener('click', () => {
+      const idx = Number(modal?.dataset.index || 0);
+      openModal((idx + 1) % slides.length);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (!modal || modal.getAttribute('aria-hidden') !== 'false') return;
+      if (e.key === 'Escape') closeModal();
+      if (e.key === 'ArrowLeft') modalPrev?.click();
+      if (e.key === 'ArrowRight') modalNext?.click();
+    });
+
+    // touch swipe on track (simple)
+    (function addSwipe(node) {
+      if (!node) return;
+      let startX = 0, startTime = 0;
+      node.addEventListener('touchstart', e => { startX = e.touches[0].pageX; startTime = Date.now(); }, { passive: true });
+      node.addEventListener('touchend', e => {
+        const dx = e.changedTouches[0].pageX - startX;
+        const dt = Date.now() - startTime;
+        if (dt < 600 && Math.abs(dx) > 40) {
+          if (dx < 0) { goto(current + 1); pauseAutoplay(); } else { goto(current - 1); pauseAutoplay(); }
+        }
+      }, { passive: true });
+    })(track);
+
+    // update current index when user scrolls/drag
+    let scrollTimeout = null;
+    track.addEventListener('scroll', () => {
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+      scrollTimeout = setTimeout(() => {
+        const trackRect = track.getBoundingClientRect();
+        const centerX = trackRect.left + trackRect.width / 2;
+        let best = 0, bestDist = Infinity;
+        slides.forEach((s, idx) => {
+          const r = s.getBoundingClientRect();
+          const c = r.left + r.width / 2;
+          const dist = Math.abs(centerX - c);
+          if (dist < bestDist) { bestDist = dist; best = idx; }
+        });
+        current = best;
+        updateUI();
+      }, 80);
+    }, { passive: true });
+
+    // init state
+    goto(0);
+    startAutoplay();
+  } // initCarousel
+
+  /* --------------------------
+     Sticky register click example
+     -------------------------- */
+  function initStickyRegister() {
+    const reg = document.getElementById('sticky-register');
+    if (!reg) return;
+    reg.addEventListener('click', (e) => {
+      // optionally focus first input in a register form
+      const first = document.querySelector('form input, form button, #register-form input, #register-form button');
+      if (first) {
+        first.focus({ preventScroll: true });
+        return;
+      }
+      // fallback: if reg has data-href attribute navigate
+      const href = reg.getAttribute('data-href') || reg.closest('a')?.getAttribute('href') || null;
+      if (href && href !== '#') window.location.href = href;
+    });
+  }
+
+  /* --------------------------
+     DOMContentLoaded init
+     -------------------------- */
+  document.addEventListener('DOMContentLoaded', () => {
+    initInViewObserver();
+    initSmoothAnchors();
+    initHeroParallax();
+    initCountdown();
+    initCardReveal();
+    initCarousel();
+    initStickyRegister();
   });
 
-})(); // end IIFE
+})(); // IIFE end
+
+
+// Trainer Metric Counter + Reveal
+document.addEventListener("DOMContentLoaded", () => {
+  const metrics = document.querySelectorAll(".metric");
+
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const metric = entry.target;
+        metric.classList.add("visible");
+
+        const numEl = metric.querySelector(".num");
+        const target = +metric.dataset.target;
+        let count = 0;
+
+        const step = Math.ceil(target / 80);
+
+        const update = () => {
+          count += step;
+          if (count >= target) {
+            numEl.textContent = target >= 100000 
+              ? "5 Lakh+" 
+              : target + "+";
+          } else {
+            numEl.textContent = count;
+            requestAnimationFrame(update);
+          }
+        };
+
+        update();
+        obs.unobserve(metric);
+      }
+    });
+  }, { threshold: 0.3 });
+
+  metrics.forEach(m => obs.observe(m));
+});
