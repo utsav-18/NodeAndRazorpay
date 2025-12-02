@@ -512,3 +512,52 @@ document.addEventListener("DOMContentLoaded", () => {
 
   metrics.forEach(m => obs.observe(m));
 });
+
+// Bonus Section reveal (safe + accessible)
+// Call after DOMContentLoaded (this file assumes it's loaded inside your main script or executed on DOM ready)
+(function initBonusSectionReveal() {
+  const section = document.getElementById('bonus-section');
+  if (!section) return;
+
+  // reveal the whole section header when it enters view
+  if ('IntersectionObserver' in window) {
+    const secObs = new IntersectionObserver((entries, obs) => {
+      entries.forEach(en => {
+        if (!en.isIntersecting) return;
+        section.classList.add('animate-in'); // triggers header animation
+        try { obs.unobserve(en.target); } catch (e) {}
+      });
+    }, { threshold: 0.12 });
+    secObs.observe(section);
+  } else {
+    // fallback
+    section.classList.add('animate-in');
+  }
+
+  // cards stagger reveal
+  const cards = Array.from(section.querySelectorAll('.bonus-card'));
+  if (!cards.length) return;
+
+  // apply CSS var from data-delay for transition-delay
+  cards.forEach(c => {
+    const d = c.getAttribute('data-delay') || '0';
+    c.style.setProperty('--delay', `${d}ms`);
+  });
+
+  if ('IntersectionObserver' in window) {
+    const cardObs = new IntersectionObserver((entries, obs) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        const el = entry.target;
+        // small timeout so staggered values are visually obvious
+        setTimeout(() => el.classList.add('in-view'), 20);
+        try { obs.unobserve(el); } catch (e) {}
+      });
+    }, { threshold: 0.18, rootMargin: '0px 0px -80px 0px' });
+
+    cards.forEach(c => cardObs.observe(c));
+  } else {
+    // fallback: reveal all
+    cards.forEach(c => c.classList.add('in-view'));
+  }
+})();
