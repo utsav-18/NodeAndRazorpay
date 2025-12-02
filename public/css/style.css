@@ -1,124 +1,207 @@
-/* --------------------------
-   Global reset & page layout
-   -------------------------- */
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg,#ffffff 0%,#fff5f5 100%);
-  color: #222;
-  overflow-x: hidden;
-}
-.container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 20px 40px;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-/* --------------------------
-   Alert bar / hero
-   -------------------------- */
-.alert-bar {
-  background: linear-gradient(135deg,#c62828 0%,#b71c1c 100%);
-  color: #fff;
-  padding: 10px 20px;
-  border-radius: 15px;
-  text-align: center;
-  margin: 20px auto 30px;
-  box-shadow: 0 8px 25px rgba(183,28,28,0.35);
-  font-size: 1rem;
-  font-weight: 700;
-  position: relative;
-  overflow: hidden;
-  animation: slideInDown .7s ease-out, alertPulse 2s ease-in-out 1s infinite;
-}
-.alert-bar::before {
-  content: '';
-  position: absolute;
-  top: 0; left: -100%;
-  width: 100%; height: 100%;
-  background: linear-gradient(90deg,transparent,rgba(255,255,255,.28),transparent);
-  animation: shine 3s infinite;
-}
-.alert-bar .price-highlight { font-size:1.35rem; }
-.alert-bar .old-price { text-decoration:line-through; opacity:.9; font-size:1.1rem; }
-.alert-bar .register-text { color:#ffd54f; font-weight:800; text-transform:uppercase; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ffffff 0%, #fff5f5 100%); /* white -> very light red */
+            color: #222; /* darker text for contrast */
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px 40px;
+        }
 
-/* hero */
-.hero { text-align:center; padding: 20px 10px 28px; }
-.hero h1 {
-  font-size: 2.5rem; color:#b71c1c; margin-bottom:20px; line-height:1.15;
-  text-shadow: 0 1px 2px rgba(0,0,0,.06);
-  opacity:0; animation: fadeInUp .8s ease-out .3s forwards;
-}
-.hero p {
-  font-size:1.2rem; color: rgba(34,34,34,.9); max-width:900px; margin:0 auto; line-height:1.6;
-  opacity:0; animation: fadeInUp .8s ease-out .6s forwards;
-}
+        /* Alert Bar */
+        .alert-bar {
+            background: linear-gradient(135deg, #c62828 0%, #b71c1c 100%); /* red gradient */
+            color: white;
+            padding: 10px 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 20px auto 30px;
+            box-shadow: 0 8px 25px rgba(183, 28, 28, 0.35); /* red-tinted shadow */
+            font-size: 1rem;
+            font-weight: 700;
+            animation: slideInDown 0.7s ease-out, alertPulse 2s ease-in-out 1s infinite;
+            position: relative;
+            overflow: hidden;
+        }
 
-/* --------------------------
-   Top info strip (moved near hero)
-   - Two compact info cards (3hr + date)
-   -------------------------- */
-.top-info-strip {
-  display:flex; justify-content:center;
-  margin-top: -4px; margin-bottom: 20px;
-  width:100%; z-index:3; pointer-events:auto;
-}
-.top-info-inline {
-  display:flex; gap:18px; align-items:center;
-  width:100%; max-width:920px; padding:6px 8px;
-}
-.info-card.small, .top-card {
-  padding:14px 18px;
-  border-radius:12px;
-  box-shadow: 0 8px 22px rgba(0,0,0,0.08);
-  display:flex; align-items:center; gap:12px;
-  background:#fff; min-width:260px; flex:1 1 0;
-  border:1px solid rgba(0,0,0,0.03);
-  transition: transform .22s ease, box-shadow .22s ease;
-}
-.info-card.small:hover { transform: translateY(-4px); box-shadow: 0 14px 36px rgba(12,12,12,0.08); }
-.info-card.small svg { width:34px; height:34px; padding:6px; border-radius:8px; background:rgba(0,0,0,0.02); flex-shrink:0; }
-.info-card.small .text h3 { font-size:1rem; margin-bottom:4px; color:#222; font-weight:700; }
-.info-card.small .text p { font-size:.9rem; color:#666; margin:0; }
-/* subtle lift so strip visually sits above the instructor card */
-.top-info-strip .info-card.small { transform: translateY(-8px); }
+        .alert-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent);
+            animation: shine 3s infinite;
+        }
 
-/* --------------------------
-   Main content grid (instructor + video)
-   -------------------------- */
-.main-content {
-  display:grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 30px;
-  margin: 40px auto;
-  align-items: stretch;
- 
-}
+        .alert-bar .price-highlight {
+            color: #fff;
+            font-size: 1.35rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.18);
+        }
 
-/* --------------------------
-   Instructor card (premium improved)
-   -------------------------- */
-/* ------------------------------------
-   PREMIUM INSTRUCTOR CARD (UPDATED)
--------------------------------------*/
+        .alert-bar .old-price {
+            text-decoration: line-through;
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
 
-.instructor-card {
-  background: rgba(248, 170, 170, 0.65);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  
-  border-radius: 22px;
-  padding:55px 26px !important;
-  
-  box-shadow:
-    0 12px 45px rgba(183, 28, 28, 0.10),
-    0 4px 10px rgba(0,0,0,0.05);
+        .alert-bar .register-text {
+            color: #ffd54f; /* warm highlight (still contrasts with red) */
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
 
-  border: 1px solid rgba(183,28,28,0.12);
-  position: relative;
-  transition: 0.3s ease;
-}
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes alertPulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 8px 25px rgba(183, 28, 28, 0.35); /* red shadow */
+            }
+            50% {
+                transform: scale(1.02);
+                box-shadow: 0 12px 35px rgba(183, 28, 28, 0.5);
+            }
+        }
+
+        @keyframes shine {
+            0% {
+                left: -100%;
+            }
+            50%, 100% {
+                left: 100%;
+            }
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 20px 10px 20px;
+           
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            color: #b71c1c; /* deep red headline */
+            margin-bottom: 20px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.06); /* subtler shadow */
+            line-height: 1.2;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out 0.3s forwards;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: rgba(34,34,34,0.9); /* near-black copy for readability */
+            max-width: 900px;
+            margin: 0 auto;
+            line-height: 1.6;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out 0.6s forwards;
+        }
+
+        /* Info Cards */
+        .info-cards {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 40px auto;
+            max-width: 700px;
+        }
+
+        .info-card {
+            background: #ffffff;
+            padding: 5px 10px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.0.8); /* neutral shadow */
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .info-card:nth-child(1) {
+            animation: slideUpFade 0.7s ease-out 0.8s forwards;
+        }
+
+        .info-card:nth-child(2) {
+            animation: slideUpFade 0.7s ease-out 1s forwards;
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.14);
+        }
+
+        .info-card svg {
+            width: 40px;
+            height: 40px;
+            fill: #b71c1c; /* icon color changed to red */
+        }
+
+        .info-card .text {
+            text-align: left;
+        }
+
+        .info-card .text h3 {
+            font-size: 1.1rem;
+            color: #2b2b2b;
+            margin-bottom: 5px;
+        }
+
+        .info-card .text p {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        /* Main Content Section */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 40px auto;
+            align-items: stretch;
+        }
+
+        /* Instructor Card */
+        .instructor-card {
+             background: linear-gradient(135deg, #fdede9 0%, #f7e1dd 100%);
+            border-radius: 20px;
+            padding: 50px 30px 30px;
+            box-shadow: 0 10px 40px rgba(183, 28, 28, 0.08); /* subtle red tint */
+            position: relative;
+            transition: transform 0.3s ease;
+            opacity: 0;
+            transform: scale(0.95);
+            
+        }
+
+        .instructor-card.animate-in {
+            animation: fadeInScale 0.8s ease-out forwards;
+        }
 
 .instructor-card:hover {
   transform: translateY(-6px);

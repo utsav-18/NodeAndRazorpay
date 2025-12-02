@@ -1,8 +1,208 @@
 <!doctype html>
-<html>
-  <body>
-    <h1>Payment Successful 🎉</h1>
-    <p>Thanks for testing. This is the success page.</p>
-    <a href="/">Back Home</a>
-  </body>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Payment Successful</title>
+  <style>
+    /* base reset */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg,#ffffff 0%, #fff5f5 100%); /* white -> very light red */
+      color: #222; /* darker text for contrast */
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    /* layout */
+    .wrap {
+      width: 100%;
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 28px;
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 28px;
+      align-items: center;
+      animation: enter 0.45s cubic-bezier(.2,.9,.2,1);
+    }
+    @keyframes enter { from { opacity: 0; transform: translateY(10px); } to { opacity:1; transform: translateY(0);} }
+
+    /* left panel */
+    .panel {
+      background: linear-gradient(180deg, rgba(255,255,255,0.96), #fbfdff);
+      padding: 28px;
+      border-radius: 14px;
+      box-shadow: 0 18px 50px rgba(16,24,40,0.06);
+    }
+
+    /* badge uses red gradient like your alert */
+    .badge {
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #c62828 0%, #b71c1c 100%);
+      color: #fff;
+      font-weight: 800;
+      box-shadow: 0 12px 36px rgba(183,28,28,0.18);
+      margin-bottom: 18px;
+      letter-spacing: .2px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      margin-bottom: 10px;
+      display:flex;
+      gap:12px;
+      align-items:center;
+      color: #111;
+    }
+    .sub { color: #4b5563; font-size: 1rem; line-height: 1.6; margin-bottom: 18px; }
+
+    /* right card */
+    .card {
+      background: #fff;
+      padding: 22px;
+      border-radius: 14px;
+      box-shadow: 0 22px 60px rgba(16,24,40,0.06);
+      text-align: center;
+      position: relative;
+      overflow: visible;
+    }
+
+    /* check circle - red gradient */
+    .check {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      display:inline-grid;
+      place-items:center;
+      margin: 0 auto 12px;
+      background: linear-gradient(135deg, #e53935, #c62828);
+      color: #fff;
+      box-shadow: 0 12px 36px rgba(198,40,40,0.14);
+      transform: translateY(-12px);
+    }
+    .check svg { width: 40px; height: 40px; }
+
+    .amount { font-weight: 800; font-size: 1.2rem; margin-bottom: 8px; color: #111; }
+    .meta { color: #6b7280; font-size: 0.95rem; margin-bottom: 18px; }
+
+    /* confetti-ish burst (keeps colorful pieces) */
+    .burst {
+      position: absolute;
+      left: -22px;
+      top: -22px;
+      width: 160px;
+      height: 160px;
+      pointer-events: none;
+      transform: rotate(12deg);
+      opacity: 0.95;
+    }
+    .burst span { position: absolute; width: 8px; height: 18px; border-radius: 4px; transform-origin: center -40px; opacity: 0; animation: pop 0.9s ease-out forwards; }
+    .burst span:nth-child(1){ left: 10%; top: 40%; background:#FFD54A; transform: rotate(10deg); animation-delay:0.05s;}
+    .burst span:nth-child(2){ left: 30%; top: 12%; background:#FF8A65; transform: rotate(-20deg); animation-delay:0.08s;}
+    .burst span:nth-child(3){ left: 55%; top: 8%; background:#81C784; transform: rotate(30deg); animation-delay:0.12s;}
+    .burst span:nth-child(4){ left: 80%; top: 28%; background:#4FC3F7; transform: rotate(-10deg); animation-delay:0.16s;}
+    .burst span:nth-child(5){ left: 70%; top: 60%; background:#B39DDB; transform: rotate(40deg); animation-delay:0.18s;}
+    .burst span:nth-child(6){ left: 40%; top: 75%; background:#FFCDD2; transform: rotate(-30deg); animation-delay:0.22s;}
+    @keyframes pop { 0% { opacity: 0; transform: translateY(0) scale(0.4) rotate(0deg); } 50% { opacity: 1; transform: translateY(-22px) scale(1.05) rotate(12deg); } 100% { opacity: 1; transform: translateY(-38px) scale(1) rotate(24deg); } }
+
+    .details { text-align:left; margin-top: 12px; font-size: 0.95rem; color: #374151; }
+    .details .row { display:flex; justify-content:space-between; padding:8px 0; border-bottom: 1px dashed #f0f0f0; }
+    .details .row:last-child { border-bottom: none; }
+
+    /* primary CTA uses red gradient + matching shadow */
+    .btn {
+      display:inline-block;
+      padding: 12px 18px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      font-weight: 800;
+      font-size: 1rem;
+      color:#fff;
+      background: linear-gradient(135deg,#e53935,#c62828);
+      box-shadow: 0 14px 40px rgba(198,40,40,0.12);
+      transition: transform .15s cubic-bezier(.2,.9,.2,1), box-shadow .15s;
+    }
+    .btn:hover { transform: translateY(-4px); box-shadow: 0 22px 60px rgba(198,40,40,0.16); }
+    .btn.secondary {
+      background: transparent;
+      color: #6b7280;
+      border: 1px solid #e6e9ef;
+      box-shadow: 0 6px 18px rgba(16,24,40,0.06);
+    }
+
+    /* responsive */
+    @media (max-width: 900px) {
+      .wrap { grid-template-columns: 1fr; gap: 18px; padding: 18px; }
+      .burst { left: auto; right: -22px; top: -22px; transform: rotate(-8deg); }
+      .card { margin-top: 6px; }
+    }
+    @media (max-width: 420px) {
+      .wrap { padding: 12px; gap: 12px; }
+      .panel { padding: 18px; border-radius: 12px; }
+      .card { padding: 16px; border-radius: 12px; }
+      .check { width: 64px; height: 64px; }
+      h1 { font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap" role="main">
+    <section class="panel" aria-labelledby="success-title">
+      <span class="badge">Payment Complete</span>
+      <h1 id="success-title">Thank you — Payment Successful 🎉</h1>
+      <p class="sub">Your payment went through safely. We've recorded the transaction. You can download a receipt or return to the homepage.</p>
+
+      <div class="details" aria-live="polite">
+        <div class="row"><div>Order ID</div><div id="orderId"><%= order_id || '—' %></div></div>
+        <div class="row"><div>Payment ID</div><div id="paymentId"><%= payment_id || '—' %></div></div>
+        <div class="row"><div>Amount</div><div id="amountPaid"><%= amount ? ('₹' + (Number(amount)/100).toFixed(2)) : '—' %></div></div>
+      </div>
+    </section>
+
+    <aside class="card" aria-labelledby="card-title">
+      <!-- <div class="burst" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span><span></span>
+      </div> -->
+
+      <div class="check" aria-hidden="true" aria-label="Success">
+        <!-- checkmark SVG -->
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20 6L9 17l-5-5"></path>
+        </svg>
+      </div>
+
+      <div class="amount" id="amountDisplay"><%= amount ? ('₹' + (Number(amount)/100).toFixed(2)) : '₹0.00' %></div>
+      <div class="meta">Payment processed securely via Razorpay</div>
+
+      <div class="details">
+        <div class="row"><div>Receipt</div><div id="receiptId"><%= receipt || '—' %></div></div>
+        <div class="row"><div>Status</div><div>Success</div></div>
+      </div>
+
+      <div style="margin-top:18px; display:flex; gap:10px; justify-content:center;">
+        <a href="/"><button class="btn">Back to Home</button></a>
+        <a href="#"><button class="btn secondary" id="downloadBtn">Download Receipt</button></a>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    // download/print
+    document.getElementById('downloadBtn').addEventListener('click', (e) => {
+      e.preventDefault();
+      window.print();
+    });
+  </script>
+</body>
 </html>

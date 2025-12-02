@@ -22,7 +22,18 @@ app.use(express.urlencoded({ extended: true }));
 
 // routes
 app.get('/', (req, res) => res.render('index'));
-app.get('/payment-success', (req, res) => res.render('payment-success'));
+
+app.get('/payment-success', (req, res) => {
+  const { order_id, payment_id, amount, receipt } = req.query;
+
+  res.render('payment-success', {
+    order_id,
+    payment_id,
+    amount,
+    receipt
+  });
+});
+
 
 const paymentRoutes = require('./routes/paymentRoutes'); // requires AFTER dotenv
 app.use('/payment', paymentRoutes);
