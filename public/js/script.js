@@ -1,4 +1,6 @@
-/* script.js — cleaned, robust, accessible */
+
+
+
 (() => {
   'use strict';
 
@@ -560,4 +562,103 @@ document.addEventListener("DOMContentLoaded", () => {
     // fallback: reveal all
     cards.forEach(c => c.classList.add('in-view'));
   }
+})();
+
+/* Reviews carousel — lightweight, accessible, autoplay + keyboard + swipe */
+(function () {
+  'use strict';
+  const track = document.querySelector('.rc-track');
+  if (!track) return;
+
+  const slides = Array.from(track.querySelectorAll('.rc-slide'));
+  const prev = document.querySelector('.rc-prev');
+  const next = document.querySelector('.rc-next');
+  const dots = Array.from(document.querySelectorAll('.rc-dot'));
+
+  let current = 0;
+  let autoplay = true;
+  let timer = null;
+  const interval = 4500;
+
+  function setActive(idx, options = {}) {
+    slides.forEach((s, i) => s.classList.toggle('active', i === idx));
+    dots.forEach((d, i) => d.setAttribute('aria-selected', String(i === idx)));
+    current = idx;
+    if (options.scroll !== false) {
+      // center chosen slide in the track
+      const slide = slides[idx];
+      if (slide) {
+        const left = (slide.offsetLeft + slide.offsetWidth / 2) - (track.clientWidth / 2);
+        track.scrollTo({ left, behavior: (options.instant ? 'auto' : 'smooth') });
+      }
+    }
+  }
+
+  function goto(idx) {
+    const n = ((idx % slides.length) + slides.length) % slides.length;
+    setActive(n);
+  }
+
+  // event listeners
+  prev?.addEventListener('click', () => { goto(current - 1); stopAutoplay(); });
+  next?.addEventListener('click', () => { goto(current + 1); stopAutoplay(); });
+
+  dots.forEach(d => {
+    d.addEventListener('click', (e) => {
+      const idx = Number(e.currentTarget.dataset.index || 0);
+      goto(idx);
+      stopAutoplay();
+    });
+  });
+
+  // keyboard support when track focused
+  track.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowLeft') { goto(current - 1); stopAutoplay(); }
+    if (e.key === 'ArrowRight') { goto(current + 1); stopAutoplay(); }
+  });
+
+  // touch swipe
+  (function addSwipe(node) {
+    if (!node) return;
+    let sx = 0, st = 0;
+    node.addEventListener('touchstart', e => { sx = e.touches[0].pageX; st = Date.now(); }, { passive: true });
+    node.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].pageX - sx;
+      const dt = Date.now() - st;
+      if (dt < 600 && Math.abs(dx) > 40) {
+        if (dx < 0) goto(current + 1);
+        else goto(current - 1);
+        stopAutoplay();
+      }
+    }, { passive: true });
+  })(track);
+
+  // autoplay
+  function startAutoplay() {
+    if (!autoplay || timer) return;
+    timer = setInterval(() => goto(current + 1), interval);
+  }
+  function stopAutoplay() {
+    autoplay = false;
+    if (timer) { clearInterval(timer); timer = null; }
+  }
+
+  // pause on hover or focus
+  const carousel = document.querySelector('.reviews-carousel');
+  carousel?.addEventListener('mouseenter', () => { if (timer) clearInterval(timer); });
+  carousel?.addEventListener('mouseleave', () => { if (autoplay) startAutoplay(); });
+  track.addEventListener('focusin', () => { if (timer) clearInterval(timer); });
+  track.addEventListener('focusout', () => { if (autoplay) startAutoplay(); });
+
+  // set initial active (do not smooth-scroll on first paint)
+  setActive(0, { instant: true, scroll: true });
+
+  // start autoplay after a short delay (so page load won't move viewport)
+  setTimeout(() => { startAutoplay(); }, 500);
+
+  // make dots accessible: add index if not present
+  dots.forEach((d, i) => { if (!d.dataset.index) d.dataset.index = i; });
+
+  // expose goto for debug if needed
+  window.reviewsGoto = goto;
 })();

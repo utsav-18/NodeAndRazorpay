@@ -306,7 +306,6 @@ body {
   background: linear-gradient(180deg, #ffdadb 0%, #ffffff 100%);
   border: 1px solid var(--card-border, rgba(0,0,0,0.04));
   border-radius: var(--card-radius, 12px);
-  padding: 18px 18px;
   box-shadow: var(--card-shadow, 0 8px 24px rgba(16,24,40,0.04));
   min-height: 64px;
   transform: translateY(12px) scale(0.995);
@@ -362,6 +361,56 @@ body {
   outline: none;
   box-shadow: 0 6px 20px rgba(108,99,255,0.10), 0 0 0 3px rgba(108,99,255,0.06);
 }
+
+/* ===== MOBILE FIX FOR FULL IMAGE VISIBILITY ===== */
+@media (max-width: 768px) {
+
+  .carousel {
+    padding: 20px 14px 28px !important;   /* reduce padding */
+  }
+
+  .carousel-track {
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .slide {
+    flex: 0 0 88%;               /* full responsive slide width */
+    padding: 10px;
+    min-height: auto;
+    height: auto;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  .slide img {
+    max-height: none !important;  /* remove height restriction */
+    width: 100%;                  /* scale full width */
+    height: auto;                 /* adaptive height */
+    object-fit: contain;
+    border-radius: 8px;
+  }
+
+  /* arrows smaller & inside */
+  .nav {
+    width: 34px;
+    height: 34px;
+  }
+  .prev { left: 6px; }
+  .next { right: 6px; }
+
+  /* dots */
+  .dots {
+    margin-top: 14px;
+    gap: 7px;
+  }
+  .dot {
+    width: 8px;
+    height: 8px;
+  }
+}
+
 
 /* small screens — 1 column */
 @media (max-width: 700px) {
@@ -454,7 +503,7 @@ body {
 .nav:hover { background: var(--accent); color:#fff; }
 
 /* dots */
-.dots { display:flex; gap:10px; justify-content:center; margin-top:20px; position:relative; z-index:2; }
+.dots { display:flex; gap:10px; justify-content:center; margin-top:20px; margin-bottom:20px; position: relative; z-index:2; }
 .dot { width:11px; height:11px; border-radius:50%; background:#ffd5d9; border:none; cursor:pointer; transition:200ms ease; }
 .dot[aria-selected="true"] { background: var(--accent); transform: scale(1.25); }
 
@@ -463,12 +512,12 @@ body {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  bottom: 12px;
+  bottom: 10px;
   display:flex;
   gap: 10px;
   z-index: 2;
 }
-.thumbs img { width: 72px; height: 48px; object-fit: cover; border-radius:6px; border:2px solid #fff; box-shadow: 0 8px 20px rgba(0,0,0,0.08); cursor:pointer; }
+.thumbs img { width: 72px; height: 50px; object-fit: cover; border-radius:6px; border:2px solid #fff; box-shadow: 0 8px 20px rgba(0,0,0,0.08); cursor:pointer; }
 
 /* ---------------------------
    Modal (zoom)
@@ -631,6 +680,7 @@ body {
 
 /* Metrics Row */
 .metrics {
+  padding-top: 20px;
   display: flex;
   gap: 40px;
   flex-wrap: wrap;
@@ -807,8 +857,9 @@ body {
   font-weight: 700;
 }
 .bonus-card-desc {
-  color: #555;
-  font-size: 15px;
+  color: #e52c2c;
+  font-size: 20px;
+  font-weight: 500;
   line-height: 1.45;
   margin: 0;
 }
@@ -851,4 +902,231 @@ body {
 /* reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .bonus-header, .bonus-card { transition: none !important; animation: none !important; transform: none !important; opacity: 1 !important; }
+}
+
+/* ---------------------------
+   Reviews / Testimonials — Responsive CSS
+   --------------------------- */
+.reviews-section {
+  background: linear-gradient(180deg, #fff5f5 0%, #ffffff 100%);
+  padding: 64px 20px;
+  color: var(--text, #222);
+}
+
+.reviews-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+  text-align: center;
+}
+
+.reviews-heading {
+  font-size: clamp(22px, 3.8vw, 34px);
+  color: var(--accent, #b71c1c);
+  font-weight: 800;
+  margin-bottom: 6px;
+}
+
+.reviews-sub {
+  color: #555;
+  font-size: 15px;
+  margin-bottom: 28px;
+}
+
+/* Carousel wrapper */
+.reviews-carousel {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+/* Prev/next nav */
+.rc-nav {
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.06);
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  display: inline-grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.06);
+  font-weight: 800;
+  color: var(--accent, #b71c1c);
+}
+.rc-nav:active { transform: translateY(1px); }
+.rc-nav:focus { outline: 3px solid rgba(183,28,28,0.12); outline-offset: 3px; }
+
+/* track: horizontal scroll + snap for touch */
+.rc-track {
+  display: flex;
+  gap: 22px;
+  align-items: stretch;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding: 6px;
+  scroll-behavior: smooth;
+  flex: 1 1 auto;
+}
+
+/* hide scrollbar visually but keep it accessible */
+.rc-track::-webkit-scrollbar { height: 8px; }
+.rc-track::-webkit-scrollbar-thumb { background: rgba(183,28,28,0.14); border-radius: 8px; }
+
+/* slide */
+.rc-slide {
+  flex: 0 0 820px;                 /* wide desktop card */
+  scroll-snap-align: center;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 18px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 22px;
+  box-shadow: 0 14px 36px rgba(6,8,12,0.06);
+  border: 1px solid rgba(196,34,34,0.04);
+  min-height: 180px;
+  align-items: center;
+}
+
+/* left column with avatar */
+.rc-left {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+  padding-top: 6px;
+}
+
+.rc-avatar {
+  width: 220px;
+  height: 220px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 6px solid #fff;
+  box-shadow: 0 12px 36px rgba(183,28,28,0.12);
+}
+
+.rc-handle {
+  font-weight: 700;
+  color: #333;
+  margin-top: 6px;
+}
+
+.rc-stars {
+  color: #ffb400;
+  font-size: 16px;
+  margin-top: 4px;
+}
+
+/* right column text */
+.rc-right { text-align: left; }
+.rc-text {
+  font-size: 16px;
+  color: #333;
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+.rc-name {
+  font-weight: 700;
+  color: #666;
+}
+
+/* dots */
+.rc-dots {
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  margin-top: 18px;
+  padding-top: 12px;
+}
+.rc-dot {
+  width: 11px;
+  height: 11px;
+  border-radius:50%;
+  background: #ffdede;
+  border: none;
+  cursor: pointer;
+}
+.rc-dot[aria-selected="true"] {
+  background: var(--accent, #b71c1c);
+  transform: scale(1.25);
+}
+
+/* small tweak: make nav buttons semi-hidden when no JS or too small */
+@media (max-width: 1100px) {
+  .rc-nav { width: 44px; height: 44px; }
+  .rc-slide { flex: 0 0 640px; grid-template-columns: 200px 1fr; padding: 18px; }
+  .rc-avatar { width: 180px; height: 180px; }
+}
+
+/* tablet */
+@media (max-width: 820px) {
+  .reviews-carousel { gap: 12px; }
+  .rc-nav { display: inline-grid; } /* still visible */
+  .rc-slide { flex: 0 0 88%; min-width: 88%; grid-template-columns: 160px 1fr; padding: 16px; }
+  .rc-avatar { width: 140px; height: 140px; border-radius: 10px; }
+  .rc-text { font-size: 15px; }
+  .rc-handle { font-size: 14px; }
+}
+
+/* mobile: single column card stacked (better readability) */
+@media (max-width: 520px) {
+  .reviews-section { padding: 36px 12px; }
+  .rc-nav { width: 40px; height: 40px; }
+  .rc-track {
+    gap: 14px;
+    padding: 8px;
+  }
+
+  /* make each slide take most of viewport width so user swipes easily */
+  .rc-slide {
+    flex: 0 0 92%;
+    min-width: 92%;
+    display: block;
+    padding: 14px;
+  }
+
+  /* stack avatar above text */
+  .rc-left {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .rc-avatar {
+    width: 84px;
+    height: 84px;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(183,28,28,0.12);
+  }
+
+  .rc-right { text-align: left; }
+  .rc-text { font-size: 15px; margin-bottom: 6px; }
+  .rc-name { font-size: 14px; }
+
+  /* move dots into a tighter area */
+  .rc-dots { gap: 8px; margin-top: 12px; }
+  .rc-dot { width: 9px; height: 9px; }
+}
+
+/* Focus / reduced motion accessibility */
+.rc-slide:focus { outline: none; box-shadow: 0 12px 36px rgba(183,28,28,0.12); transform: translateY(-4px); }
+@media (prefers-reduced-motion: reduce) {
+  .rc-slide, .rc-nav, .rc-dot { transition: none !important; transform: none !important; }
+}
+@media (max-width: 520px) {
+  /* stack handle + stars vertically */
+  .rc-left {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .rc-stars {
+    font-size: 14px;
+    line-height: 1;
+  }
 }
