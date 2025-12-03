@@ -356,3 +356,228 @@
     stopInterval();
   });
 })();
+
+
+{
+
+  // trn_section_long.js  (defer this script)
+(function () {
+  const section = document.getElementById('trn_section');
+  if (!section) return;
+
+  const inner = section.querySelector('.trn_inner');
+  const counters = Array.from(section.querySelectorAll('.trn_stat_num'));
+  let animated = false;
+
+  // animate number from 0 -> target
+  function animateCount(el, target, duration = 1400) {
+    target = Number(target);
+    if (!target || target <= 0) { el.textContent = target; return; }
+    const start = 0;
+    const startTime = performance.now();
+    function step(now) {
+      const t = Math.min(1, (now - startTime) / duration);
+      // easeOutQuad
+      const ease = t*(2-t);
+      const current = Math.round(start + (target - start) * ease);
+      // append plus for >=1000
+      el.textContent = (target >= 1000 ? (current + '+') : current);
+      if (t < 1) requestAnimationFrame(step);
+      else el.textContent = (target >= 1000 ? (target + '+') : String(target));
+    }
+    requestAnimationFrame(step);
+  }
+
+  // reveal + animate when visible
+  const io = new IntersectionObserver((entries, obs) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      if (!animated) {
+        inner.classList.add('trn_reveal');
+        counters.forEach(c => {
+          const target = c.dataset.target || c.getAttribute('data-target') || c.textContent;
+          animateCount(c, Number(target) || 0, 1400);
+        });
+        animated = true;
+      }
+      obs.unobserve(section);
+    });
+  }, { threshold: 0.25 });
+
+  io.observe(section);
+
+  // optional: small parallax on mouse move for trainer image (desktop)
+  const img = section.querySelector('.trn_image');
+  if (img && window.innerWidth > 768) {
+    section.addEventListener('mousemove', (e) => {
+      const r = section.getBoundingClientRect();
+      const cx = r.left + r.width/2;
+      const cy = r.top + r.height/2;
+      const dx = (e.clientX - cx) / r.width;
+      const dy = (e.clientY - cy) / r.height;
+      img.style.transform = `translate(${dx * 6}px, ${dy * 6}px) scale(1.02)`;
+    });
+    section.addEventListener('mouseleave', () => {
+      img.style.transform = `translate(0,0) scale(1)`;
+    });
+  }
+})();
+
+
+}
+
+{
+
+  // trn_section.js  (defer this script)
+(function () {
+  const section = document.getElementById('trn_section');
+  if (!section) return;
+
+  const inner = section.querySelector('.trn_inner');
+  const counters = Array.from(section.querySelectorAll('.trn_stat_num'));
+
+  // animate number from 0 -> target
+  function animateCount(el, target, duration = 1200) {
+    target = Number(target);
+    if (!target || target <= 0) { el.textContent = target; return; }
+    const start = 0;
+    const startTime = performance.now();
+    function step(now) {
+      const t = Math.min(1, (now - startTime) / duration);
+      const ease = t < 0.5 ? 2*t*t : -1 + (4 - 2*t)*t; // smooth-ish ease
+      const current = Math.round(start + (target - start) * ease);
+      el.textContent = current + (target >= 1000 ? '+' : '');
+      if (t < 1) requestAnimationFrame(step);
+      else { el.textContent = (target >= 1000 ? (target + '+') : String(target)); }
+    }
+    requestAnimationFrame(step);
+  }
+
+  // intersection observer to trigger animation once
+  const obs = new IntersectionObserver((entries, o) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      // reveal card lift
+      inner.classList.add('trn_reveal');
+      // animate counters
+      counters.forEach(c => {
+        const target = c.dataset.target || c.getAttribute('data-target') || c.textContent;
+        animateCount(c, Number(target) || 0, 1300);
+      });
+      o.unobserve(section);
+    });
+  }, { threshold: 0.28 });
+
+  obs.observe(section);
+
+})();
+
+
+}
+
+
+{
+
+(function () {
+  const faqList = document.getElementById('faqList');
+  if (!faqList) return;
+  const items = Array.from(faqList.querySelectorAll('.faq-item'));
+
+  function animateHeight(el, from, to, duration = 240) {
+    if (from === to) { el.style.height = to + 'px'; return Promise.resolve(); }
+    const startTime = performance.now();
+    return new Promise(resolve => {
+      function frame(now) {
+        const t = Math.min(1, (now - startTime) / duration);
+        const eased = t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2; // easeInOutCubic
+        const val = Math.round(from + (to - from) * eased);
+        el.style.height = val + 'px';
+        if (t < 1) requestAnimationFrame(frame);
+        else { el.style.height = to + 'px'; resolve(); }
+      }
+      requestAnimationFrame(frame);
+    });
+  }
+
+  function closeItem(item) {
+    const btn = item.querySelector('.faq-q');
+    const ans = item.querySelector('.faq-a');
+    if (!btn || !ans || !item.classList.contains('is-open')) return;
+    const startH = Math.round(ans.getBoundingClientRect().height);
+    ans.style.height = startH + 'px';
+    animateHeight(ans, startH, 0, 200).then(() => {
+      ans.style.opacity = '0';
+      ans.style.height = '0px';
+    });
+    item.classList.remove('is-open');
+    btn.setAttribute('aria-expanded', 'false');
+    const chev = btn.querySelector('.chev'); if (chev) chev.textContent = '＋';
+  }
+
+  function openItem(item) {
+    const btn = item.querySelector('.faq-q');
+    const ans = item.querySelector('.faq-a');
+    if (!btn || !ans || item.classList.contains('is-open')) return;
+    // close others
+    items.forEach(it => { if (it !== item) closeItem(it); });
+
+    // measure natural height
+    ans.style.opacity = '0';
+    ans.style.height = 'auto';
+    const natural = Math.round(ans.getBoundingClientRect().height);
+    ans.style.height = '0px';
+
+    item.classList.add('is-open');
+    btn.setAttribute('aria-expanded', 'true');
+    const chev = btn.querySelector('.chev'); if (chev) chev.textContent = '−';
+
+    requestAnimationFrame(() => {
+      ans.style.opacity = '1';
+      animateHeight(ans, 0, natural, 260).then(() => { ans.style.height = 'auto'; });
+      setTimeout(() => { item.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 260);
+    });
+  }
+
+  // initialize states & attach listeners
+  items.forEach(item => {
+    const btn = item.querySelector('.faq-q');
+    const ans = item.querySelector('.faq-a');
+    const chev = btn.querySelector('.chev');
+    if (!btn || !ans) return;
+
+    if (item.classList.contains('is-open')) {
+      ans.style.height = 'auto'; ans.style.opacity = '1'; btn.setAttribute('aria-expanded', 'true');
+      if (chev) chev.textContent = '−';
+    } else {
+      ans.style.height = '0px'; ans.style.opacity = '0'; btn.setAttribute('aria-expanded', 'false');
+      if (chev) chev.textContent = '＋';
+    }
+
+    btn.addEventListener('click', () => {
+      if (item.classList.contains('is-open')) closeItem(item);
+      else openItem(item);
+    });
+
+    btn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); btn.click(); }
+      else if (e.key === 'ArrowDown') { e.preventDefault(); const n = item.nextElementSibling; if (n) n.querySelector('.faq-q')?.focus(); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); const p = item.previousElementSibling; if (p) p.querySelector('.faq-q')?.focus(); }
+    });
+
+    // responsive: if open and resized, keep answer height auto shortly after resize
+    let rt;
+    window.addEventListener('resize', () => {
+      if (!item.classList.contains('is-open')) return;
+      clearTimeout(rt);
+      ans.style.height = 'auto';
+      rt = setTimeout(() => { ans.style.height = 'auto'; }, 160);
+    });
+  });
+
+  // click outside to close all (keeps UI tidy)
+  document.addEventListener('click', (e) => {
+    if (!faqList.contains(e.target)) items.forEach(i => closeItem(i));
+  });
+})();
+  
+}
