@@ -1294,3 +1294,131 @@
 @media (prefers-reduced-motion: reduce) {
   .prx_card, .prx_icon { transition: none !important; }
 }
+/* ============================================================
+   PREMIUM RESOURCES – ADVANCED HOVER ANIMATIONS (prx_ani_)
+   ============================================================ */
+
+/* Smooth hover lift + aura glow */
+.prx_card {
+  transition: transform .45s cubic-bezier(.19,1,.22,1),
+              box-shadow .45s cubic-bezier(.19,1,.22,1),
+              border-radius .35s cubic-bezier(.19,1,.22,1),
+              background .35s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Pink aura glow + floating effect */
+.prx_card:hover {
+  transform: translateY(-14px) scale(1.015);
+  box-shadow: 0 60px 160px rgba(255, 80, 120, 0.22);
+  background: linear-gradient(180deg, #ffffff 0%, #fff8fa 100%);
+}
+
+/* Gradient highlight sweep */
+.prx_card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 110, 140, 0.06),
+    rgba(255, 160, 200, 0.03),
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity .4s ease;
+  pointer-events: none;
+}
+.prx_card:hover::after {
+  opacity: 1;
+}
+
+/* Icon hover pop + shine */
+.prx_icon {
+  transition: transform .45s cubic-bezier(.19,1,.22,1),
+              box-shadow .45s cubic-bezier(.19,1,.22,1);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Pop + glow on hover */
+.prx_card:hover .prx_icon {
+  transform: translateY(-6px) scale(1.08);
+  box-shadow: 0 20px 50px rgba(255, 75, 100, 0.32);
+}
+
+/* Shine animation inside icon */
+.prx_icon::before {
+  content:"";
+  position:absolute;
+  top:0; left:-120%;
+  width:60%; height:100%;
+  background:linear-gradient(
+      100deg,
+      transparent 0%,
+      rgba(255,255,255,0.55) 50%,
+      transparent 100%
+  );
+  transform:skewX(-30deg);
+  transition: .6s;
+}
+.prx_card:hover .prx_icon::before {
+  left:130%;
+}
+
+/* Title subtle lift */
+.prx_card_title {
+  transition: transform .35s ease, color .35s ease;
+}
+.prx_card:hover .prx_card_title {
+  transform: translateY(-2px);
+  color: #ff4b6b;
+}
+
+/* Ribbon micro-wiggle animation */
+@keyframes prx_ribbon_wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-3deg); }
+}
+.prx_card:hover .prx_ribbon span {
+  animation: prx_ribbon_wiggle .45s ease-in-out;
+}
+
+/* Ripple-in reveal animation */
+.prx_visible {
+  animation: prx_card_reveal .55s cubic-bezier(.19,1,.22,1) forwards;
+}
+@keyframes prx_card_reveal {
+  0% { opacity:0; transform: translateY(20px) scale(0.96); }
+  100% { opacity:1; transform: none; }
+}
+
+/* Mobile optimized — reduce motion impact */
+@media (max-width: 600px) {
+  .prx_card:hover {
+    transform: translateY(-8px) scale(1.01);
+    box-shadow: 0 40px 120px rgba(255, 80, 120, 0.16);
+  }
+}
+/* Rotating Gift Emoji Animation (Unique Prefix: prx_gift_) */
+.prx_gift_spin {
+  display: inline-block;
+  animation: prx_gift_rotate 2.8s linear infinite;
+  transform-origin: center;
+}
+
+/* Smooth 360° rotation */
+@keyframes prx_gift_rotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* If you want a softer premium wobble rotation instead */
+@keyframes prx_gift_wobble {
+  0% { transform: rotate(0deg); }
+  25% { transform: rotate(12deg); }
+  50% { transform: rotate(0deg); }
+  75% { transform: rotate(-12deg); }
+  100% { transform: rotate(0deg); }
+}
