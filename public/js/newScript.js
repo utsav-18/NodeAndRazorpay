@@ -43,14 +43,6 @@
     if(trainer) trainer.style.transform = `translate(${dx * 8}px, ${dy * 6}px)`;
   });
 
-  // play button micro animation + click
-  const play = document.getElementById('playBtn') || document.querySelector('.play');
-  if(play){
-    play.addEventListener('mouseenter', ()=> play.animate([{transform:'scale(1)'},{transform:'scale(1.06)'},{transform:'scale(1)'}],{duration:450,iterations:1,easing:'ease-out'}));
-    play.addEventListener('click', ()=> alert('Demo video placeholder — replace with your video modal.'));
-  }
-
-
   // reduce-motion
   const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
   if(mq.matches){
