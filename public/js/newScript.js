@@ -573,3 +573,187 @@
 })();
   
 }
+
+
+/* =================== STX TESTIMONIAL SLIDER =================== */
+/* Put this at the end of the page (after HTML) or load on DOMContentLoaded */
+(function () {
+  const stage = document.getElementById('stx_stage');
+  const track = document.getElementById('stx_track');
+  const dotsBox = document.getElementById('stx_dots');
+  const prevBtn = document.getElementById('stx_prev');
+  const nextBtn = document.getElementById('stx_next');
+  if (!stage || !track || !dotsBox) return;
+
+  const cards = Array.from(track.querySelectorAll('.stx_card'));
+  const total = cards.length;
+  let idx = 0;
+  const AUTOPLAY = true;
+  const DELAY = 4200;
+  let timer = null;
+  let pointerActive = false;
+  let startX = 0;
+
+  /* build dots */
+  function buildDots() {
+    dotsBox.innerHTML = '';
+    for (let i=0;i<total;i++){
+      const d = document.createElement('button');
+      d.className = 'stx_dot';
+      d.setAttribute('aria-label', `Go to slide ${i+1}`);
+      d.dataset.index = i;
+      if (i === 0) d.classList.add('active');
+      d.addEventListener('click', () => goto(i, true));
+      dotsBox.appendChild(d);
+    }
+  }
+
+  /* compute center transform and apply */
+  function update(animate = true) {
+    const stageW = stage.clientWidth;
+    const card = cards[idx];
+    const cardW = card.offsetWidth;
+    const desiredLeft = Math.max((stageW - cardW) / 2, 0);
+    const cardLeft = card.offsetLeft;
+    const tx = -(cardLeft - desiredLeft);
+
+    track.style.transition = animate ? 'transform 600ms cubic-bezier(.22,.9,.2,1)' : 'none';
+    track.style.transform = `translate3d(${tx}px,0,0)`;
+
+    cards.forEach((c,i) => c.classList.toggle('is-active', i === idx));
+    Array.from(dotsBox.children).forEach((d,i) => d.classList.toggle('active', i === idx));
+  }
+
+  /* go to index */
+  function goto(i, user = false) {
+    idx = (i + total) % total;
+    update(true);
+    if (user) restartAutoplay();
+  }
+
+  /* autoplay */
+  function startAuto() {
+    stopAuto();
+    if (!AUTOPLAY) return;
+    timer = setInterval(() => goto(idx + 1), DELAY);
+  }
+  function stopAuto() { if (timer) { clearInterval(timer); timer = null; } }
+  function restartAutoplay() { stopAuto(); startAuto(); }
+
+  /* arrow handlers */
+  if (prevBtn) prevBtn.addEventListener('click', () => goto(idx - 1, true));
+  if (nextBtn) nextBtn.addEventListener('click', () => goto(idx + 1, true));
+
+  /* swipe / pointer */
+  function onPointerDown(e) {
+    pointerActive = true;
+    startX = e.touches ? e.touches[0].clientX : e.clientX;
+    track.style.transition = 'none';
+    stopAuto();
+  }
+  function onPointerMove(e) {
+    if (!pointerActive) return;
+    const x = e.touches ? e.touches[0].clientX : e.clientX;
+    const dx = x - startX;
+    const curTx = getTranslateX(track);
+    track.style.transform = `translate3d(${curTx + dx}px,0,0)`;
+  }
+  function onPointerUp(e) {
+    if (!pointerActive) return;
+    pointerActive = false;
+    const endX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
+    const dx = endX - startX;
+    if (Math.abs(dx) > 60) {
+      if (dx < 0) goto(idx + 1, true); else goto(idx - 1, true);
+    } else {
+      update(true);
+    }
+    restartAutoplay();
+  }
+  function getTranslateX(el) {
+    const st = window.getComputedStyle(el).transform;
+    if (st && st !== 'none') {
+      const m = st.match(/matrix.*\((.+)\)/);
+      if (m) {
+        const vals = m[1].split(', ');
+        return parseFloat(vals[4]);
+      }
+    }
+    return 0;
+  }
+
+  /* keyboard */
+  function onKey(e) {
+    if (e.key === 'ArrowLeft') goto(idx - 1, true);
+    if (e.key === 'ArrowRight') goto(idx + 1, true);
+  }
+
+  /* init */
+  buildDots();
+  // small delay to ensure layout measured
+  setTimeout(() => { update(false); startAuto(); }, 80);
+
+  // events
+  stage.addEventListener('touchstart', onPointerDown, {passive:true});
+  stage.addEventListener('touchmove', onPointerMove, {passive:true});
+  stage.addEventListener('touchend', onPointerUp, {passive:true});
+  stage.addEventListener('mousedown', onPointerDown);
+  window.addEventListener('mousemove', onPointerMove);
+  window.addEventListener('mouseup', onPointerUp);
+
+  stage.addEventListener('mouseenter', stopAuto);
+  stage.addEventListener('mouseleave', () => { if (AUTOPLAY) startAuto(); });
+  stage.addEventListener('focusin', stopAuto);
+  stage.addEventListener('focusout', () => { if (AUTOPLAY) startAuto(); });
+
+  document.addEventListener('keydown', onKey);
+
+  // responsive recalculation
+  let rt;
+  window.addEventListener('resize', () => {
+    clearTimeout(rt);
+    rt = setTimeout(() => update(false), 120);
+  });
+
+})();
+
+/* ===== prx premium grid interactions (unique prefix prx_) ===== */
+(function () {
+  const cards = Array.from(document.querySelectorAll('.prx_card'));
+
+  if (!cards.length) return;
+
+  // Intersection observer to reveal cards with stagger
+  const io = new IntersectionObserver((entries, obs) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        // small stagger based on index
+        const i = cards.indexOf(el);
+        setTimeout(() => el.classList.add('prx_visible'), i * 100);
+        obs.unobserve(el);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  cards.forEach(c => io.observe(c));
+
+  // keyboard accessibility: when focused, ensure visible & highlight
+  cards.forEach(c => {
+    c.addEventListener('focus', () => c.classList.add('prx_visible'));
+    c.addEventListener('blur', () => { /* leave visible */ });
+    // optional: click handler to open resource modal or download
+    c.addEventListener('click', (e) => {
+      // Example: console.log the numeric value (if needed)
+      const val = c.dataset.value || '';
+      // Replace with your action: open modal / download / go to link
+      console.log('Resource clicked:', c.querySelector('.prx_card_title')?.textContent, 'value=', val);
+    });
+  });
+
+  // Safety: respect reduced-motion
+  const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (mq.matches) {
+    cards.forEach(c => c.classList.add('prx_visible'));
+  }
+})();
