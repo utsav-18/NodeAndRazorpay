@@ -804,3 +804,239 @@
     cards.forEach(c => c.classList.add('prx_visible'));
   }
 })();
+
+
+/* promo-section.js
+   - Triggers the bar-rise animation when the section enters view
+   - Adds a gentle CTA text pulse (scale) that pauses on hover/focus
+   - Respects prefers-reduced-motion
+*/
+
+(function () {
+  // 1) reveal bars when .par-inner intersects viewport
+  const parInner = document.querySelector('.par-inner');
+  if (parInner) {
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (prefersReduced.matches) {
+      parInner.classList.add('bars-animate');
+    } else {
+      const io = new IntersectionObserver((entries, obs) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            parInner.classList.add('bars-animate');
+            obs.disconnect();
+          }
+        });
+      }, { threshold: 0.18 });
+      io.observe(parInner);
+    }
+  }
+
+  // 2) CTA gentle pulse (scale the text inside the button)
+  const cta = document.getElementById('parCta');
+  if (!cta) return;
+
+  // Ensure inner wrapper exists
+  let inner = cta.querySelector('.par-cta-text');
+  if (!inner) {
+    inner = document.createElement('span');
+    inner.className = 'par-cta-text';
+    while (cta.firstChild) inner.appendChild(cta.firstChild);
+    cta.appendChild(inner);
+  }
+
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+  if (prefersReduced.matches) {
+    inner.style.transform = 'scale(1)';
+    return;
+  }
+
+  const MIN = 1;
+  const MAX = 1.06;
+  const HALF = 1000; // ms
+  let rafId = null, start = null, dir = 1, running = true;
+
+  function easeInOut(t) { return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t; }
+
+  function step(ts) {
+    if (!start) start = ts;
+    const elapsed = ts - start;
+    const t = Math.min(elapsed / HALF, 1);
+    const e = easeInOut(t);
+    const scale = dir === 1 ? MIN + (MAX - MIN) * e : MAX - (MAX - MIN) * e;
+    inner.style.transform = `scale(${scale})`;
+
+    if (elapsed >= HALF) { dir *= -1; start = ts; }
+    if (running) rafId = requestAnimationFrame(step);
+  }
+
+  rafId = requestAnimationFrame(step);
+
+  function pause() {
+    running = false;
+    if (rafId) cancelAnimationFrame(rafId);
+    inner.style.transform = 'scale(1)';
+  }
+  function resume() {
+    if (!running) {
+      running = true;
+      start = null;
+      rafId = requestAnimationFrame(step);
+    }
+  }
+
+  cta.addEventListener('mouseenter', pause, { passive: true });
+  cta.addEventListener('mouseleave', resume, { passive: true });
+  cta.addEventListener('focusin', pause);
+  cta.addEventListener('focusout', resume);
+
+  prefersReduced.addEventListener('change', e => {
+    if (e.matches) pause(); else resume();
+  });
+})();
+/* promo-section-4bars.js
+   - toggles .bars-animate when .par-inner enters view
+   - pointer parallax/tilt on desktop (pointer:fine)
+   - gentle CTA text pulse (pauses on hover/focus)
+   - respects prefers-reduced-motion
+*/
+(function(){
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // 1) reveal bars
+  const parInner = document.getElementById('par-inner');
+  if (parInner) {
+    if (reduced) {
+      parInner.classList.add('bars-animate');
+    } else {
+      const io = new IntersectionObserver((entries, obs) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) {
+            parInner.classList.add('bars-animate');
+            obs.disconnect();
+          }
+        });
+      }, { threshold: 0.18 });
+      io.observe(parInner);
+    }
+  }
+
+  // 2) pointer parallax for the art svg (desktop)
+  const art = document.querySelector('.par-art');
+  const svg = document.querySelector('.par-svg');
+  if (art && svg && !reduced && window.matchMedia('(pointer:fine)').matches) {
+    const rectCache = () => art.getBoundingClientRect();
+    let rect = rectCache();
+
+    function onMove(e) {
+      rect = rectCache();
+      const px = (e.clientX - rect.left) / rect.width;
+      const py = (e.clientY - rect.top) / rect.height;
+      const nx = (px - 0.5);
+      const ny = (py - 0.5);
+      const ry = nx * 6; // rotateY
+      const rx = -ny * 6; // rotateX
+      svg.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateZ(0)`;
+      svg.style.transition = 'transform 100ms ease-out';
+    }
+    function onLeave() {
+      svg.style.transform = '';
+      svg.style.transition = 'transform 300ms cubic-bezier(.2,.9,.2,1)';
+    }
+    art.addEventListener('pointermove', onMove, {passive:true});
+    art.addEventListener('pointerleave', onLeave);
+    // re-calc on resize
+    window.addEventListener('resize', () => { rect = rectCache(); });
+  }
+
+  // 3) CTA gentle pulse (scale inner text)
+  const cta = document.getElementById('parCta');
+  if (cta && !reduced) {
+    let inner = cta.querySelector('.par-cta-text');
+    if (!inner) {
+      inner = document.createElement('span');
+      inner.className = 'par-cta-text';
+      while (cta.firstChild) inner.appendChild(cta.firstChild);
+      cta.appendChild(inner);
+    }
+
+    const MIN = 1, MAX = 1.05, HALF = 1000;
+    let raf = null, start = null, dir = 1, running = true;
+
+    function ease(t){ return t<0.5 ? 2*t*t : -1 + (4-2*t)*t; }
+    function step(ts){
+      if (!start) start = ts;
+      const elapsed = ts - start;
+      const t = Math.min(elapsed/HALF, 1);
+      const e = ease(t);
+      const scale = dir === 1 ? MIN + (MAX-MIN)*e : MAX - (MAX-MIN)*e;
+      inner.style.transform = `scale(${scale})`;
+      if (elapsed >= HALF) { dir *= -1; start = ts; }
+      if (running) raf = requestAnimationFrame(step);
+    }
+    raf = requestAnimationFrame(step);
+
+    function pause(){ running = false; if (raf) cancelAnimationFrame(raf); inner.style.transform = 'scale(1)'; }
+    function resume(){ if (!running){ running = true; start = null; raf = requestAnimationFrame(step); } }
+
+    cta.addEventListener('mouseenter', pause, {passive:true});
+    cta.addEventListener('mouseleave', resume, {passive:true});
+    cta.addEventListener('focusin', pause);
+    cta.addEventListener('focusout', resume);
+
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    mq.addEventListener('change', (e)=> { if (e.matches) pause(); else resume(); });
+  }
+
+})();
+
+
+// new section who can join this 
+/* wj2-who.js
+   Reveal cards with IntersectionObserver, add keyboard behavior.
+*/
+(function () {
+  'use strict';
+
+  const cards = Array.from(document.querySelectorAll('#wj2_grid .wj2_card'));
+  if (!cards.length) return;
+
+  const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduced) {
+    cards.forEach(c => c.classList.add('revealed'));
+    return;
+  }
+
+  const io = new IntersectionObserver((entries, obs) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const el = entry.target;
+      // stagger by index
+      const idx = cards.indexOf(el);
+      setTimeout(() => el.classList.add('revealed'), idx * 60);
+      obs.unobserve(el);
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -80px 0px' });
+
+  cards.forEach(c => io.observe(c));
+
+  // keyboard activation: Enter/Space triggers a visual "press"
+  cards.forEach(c => {
+    c.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        c.classList.add('revealed');
+        // briefly toggle to simulate activation
+        setTimeout(() => c.classList.remove('revealed'), 900);
+      }
+    });
+  });
+
+  // Optional: make CTA accessible via keyboard if user focuses it (it is a button inside a link)
+  const cta = document.getElementById('primaryCTA');
+  if (cta) {
+    cta.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') cta.click();
+    });
+  }
+})();
