@@ -459,6 +459,21 @@ h1 .accent{
   .wj_icon { width:56px; height:56px; min-width:56px; border-radius:12px; }
 }
 
+/* Force the Why-Join title into a single line on mobile */
+@media (max-width: 520px) {
+  .wj_title {
+    font-size: 22px !important;          /* decreases size so it fits in one line */
+    white-space: nowrap !important;      /* prevents line breaking */
+    overflow: hidden;                    /* avoids overflow issues */
+    text-overflow: ellipsis;             /* adds "..." if screen is extremely narrow */
+  }
+
+  /* Reduce side padding so the title has more horizontal space */
+  #wj_inner {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+}
 
 /* wj2-who.css (unique wj2_ prefix) */
 #wj2_section { padding: 72px 0; background: transparent; }
