@@ -765,45 +765,49 @@
 })();
 
 /* ===== prx premium grid interactions (unique prefix prx_) ===== */
-(function () {
-  const cards = Array.from(document.querySelectorAll('.prx_card'));
+// Adds entrance animation when cards scroll into view + subtle tilt + keyboard interactions
+document.addEventListener('DOMContentLoaded', function () {
+  const cards = document.querySelectorAll('.premium-resources .card');
 
-  if (!cards.length) return;
-
-  // Intersection observer to reveal cards with stagger
-  const io = new IntersectionObserver((entries, obs) => {
+  // IntersectionObserver for reveal
+  const obs = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
-        const el = entry.target;
-        // small stagger based on index
-        const i = cards.indexOf(el);
-        setTimeout(() => el.classList.add('prx_visible'), i * 100);
-        obs.unobserve(el);
+        entry.target.classList.add('in-view');
+        obs.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.12 });
+  }, { root: null, rootMargin: '0px 0px -10% 0px', threshold: 0.14 });
 
-  cards.forEach(c => io.observe(c));
+  cards.forEach(c => obs.observe(c));
 
-  // keyboard accessibility: when focused, ensure visible & highlight
-  cards.forEach(c => {
-    c.addEventListener('focus', () => c.classList.add('prx_visible'));
-    c.addEventListener('blur', () => { /* leave visible */ });
-    // optional: click handler to open resource modal or download
-    c.addEventListener('click', (e) => {
-      // Example: console.log the numeric value (if needed)
-      const val = c.dataset.value || '';
-      // Replace with your action: open modal / download / go to link
-      console.log('Resource clicked:', c.querySelector('.prx_card_title')?.textContent, 'value=', val);
+  // keyboard accessible "press" effect for Enter/Space
+  cards.forEach(card => {
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        card.classList.add('keyboard-press');
+        setTimeout(() => card.classList.remove('keyboard-press'), 220);
+      }
     });
   });
 
-  // Safety: respect reduced-motion
-  const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
-  if (mq.matches) {
-    cards.forEach(c => c.classList.add('prx_visible'));
-  }
-})();
+  // subtle tilt effect on mouse move (light)
+  cards.forEach(card => {
+    const wrap = card.closest('.card-frame') || card;
+    wrap.addEventListener('mousemove', (ev) => {
+      const r = card.getBoundingClientRect();
+      const x = ev.clientX - r.left;
+      const y = ev.clientY - r.top;
+      const rx = (y - r.height/2) / 25;
+      const ry = (x - r.width/2) / -25;
+      card.style.transform = `perspective(800px) rotateX(${rx}deg) rotateY(${ry}deg) translateZ(0) scale(1.01)`;
+    });
+    wrap.addEventListener('mouseleave', () => {
+      card.style.transform = '';
+    });
+  });
+});
+
 
 
 /* promo-section.js
