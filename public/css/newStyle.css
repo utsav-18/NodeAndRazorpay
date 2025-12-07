@@ -1770,22 +1770,3 @@ h1 .accent{
   font-size: clamp(18px, 5.2vw, 36px) !important;
   white-space: nowrap !important;
 }
-
-/* Rotate the gift emoji continuously */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.badge::before {
-  content: "🎁";
-  display: inline-block;
-  animation: spinGift 3.2s linear infinite;
-}
-
-/* Rotation animation */
-@keyframes spinGift {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
