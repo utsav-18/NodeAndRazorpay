@@ -5,204 +5,213 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Payment Successful</title>
   <style>
-    /* base reset */
+    /* reset + base */
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; }
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg,#ffffff 0%, #fff5f5 100%); /* white -> very light red */
-      color: #222; /* darker text for contrast */
+    html,body { height: 100%; }
+    body{
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg,#ffffff 0%, #fff5f5 100%);
+      color:#111;
       -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      overflow-x: hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px;
     }
 
     /* layout */
     .wrap {
-      width: 100%;
-      max-width: 860px;
-      margin: 0 auto;
-      padding: 28px;
-      display: grid;
+      width:100%;
+      max-width:980px;
+      display:grid;
       grid-template-columns: 1fr 420px;
-      gap: 28px;
-      align-items: center;
-      animation: enter 0.45s cubic-bezier(.2,.9,.2,1);
+      gap:28px;
+      align-items:start;
+      animation: enter .45s cubic-bezier(.2,.9,.2,1);
     }
-    @keyframes enter { from { opacity: 0; transform: translateY(10px); } to { opacity:1; transform: translateY(0);} }
+    @keyframes enter{ from{opacity:0; transform:translateY(12px)} to{opacity:1; transform:none} }
 
     /* left panel */
     .panel {
-      background: linear-gradient(180deg, rgba(255,255,255,0.96), #fbfdff);
-      padding: 28px;
-      border-radius: 14px;
-      box-shadow: 0 18px 50px rgba(16,24,40,0.06);
+      background: linear-gradient(180deg, rgba(255,255,255,0.97), #fbfdff);
+      padding:28px;
+      border-radius:14px;
+      box-shadow:0 18px 50px rgba(16,24,40,0.06);
     }
-
-    /* badge uses red gradient like your alert */
     .badge {
-      display: inline-block;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, #c62828 0%, #b71c1c 100%);
-      color: #fff;
-      font-weight: 800;
-      box-shadow: 0 12px 36px rgba(183,28,28,0.18);
-      margin-bottom: 18px;
-      letter-spacing: .2px;
+      display:inline-block;
+      padding:8px 12px;
+      border-radius:999px;
+      background: linear-gradient(135deg,#c62828,#b71c1c);
+      color:#fff;
+      font-weight:800;
+      box-shadow:0 12px 36px rgba(183,28,28,0.14);
+      margin-bottom:14px;
     }
+    h1{ font-size:1.45rem; margin:12px 0; color:#0f1724; display:flex; gap:10px; align-items:center; }
+    .sub{ color:#4b5563; line-height:1.6; margin-bottom:18px; }
 
-    h1 {
-      font-size: 1.6rem;
-      margin-bottom: 10px;
-      display:flex;
-      gap:12px;
-      align-items:center;
-      color: #111;
-    }
-    .sub { color: #4b5563; font-size: 1rem; line-height: 1.6; margin-bottom: 18px; }
+    .details{ margin-top:14px; color:#374151; font-size:0.95rem; }
+    .row{ display:flex; justify-content:space-between; gap:16px; padding:10px 0; border-bottom:1px dashed #f0f0f0; align-items:center; }
+    .row:last-child{ border-bottom:none; }
+    .k{ color:#6b7280; font-weight:600; font-size:0.94rem; }
+    .v{ color:#111; font-weight:700; word-break:break-all; }
 
     /* right card */
     .card {
-      background: #fff;
-      padding: 22px;
-      border-radius: 14px;
-      box-shadow: 0 22px 60px rgba(16,24,40,0.06);
-      text-align: center;
-      position: relative;
-      overflow: visible;
+      background:#fff;
+      padding:22px;
+      border-radius:14px;
+      box-shadow:0 22px 60px rgba(16,24,40,0.06);
+      text-align:center;
     }
-
-    /* check circle - red gradient */
     .check {
-      width: 76px;
-      height: 76px;
-      border-radius: 50%;
-      display:inline-grid;
-      place-items:center;
-      margin: 0 auto 12px;
-      background: linear-gradient(135deg, #e53935, #c62828);
-      color: #fff;
-      box-shadow: 0 12px 36px rgba(198,40,40,0.14);
-      transform: translateY(-12px);
-    }
-    .check svg { width: 40px; height: 40px; }
-
-    .amount { font-weight: 800; font-size: 1.2rem; margin-bottom: 8px; color: #111; }
-    .meta { color: #6b7280; font-size: 0.95rem; margin-bottom: 18px; }
-
-    /* confetti-ish burst (keeps colorful pieces) */
-    .burst {
-      position: absolute;
-      left: -22px;
-      top: -22px;
-      width: 160px;
-      height: 160px;
-      pointer-events: none;
-      transform: rotate(12deg);
-      opacity: 0.95;
-    }
-    .burst span { position: absolute; width: 8px; height: 18px; border-radius: 4px; transform-origin: center -40px; opacity: 0; animation: pop 0.9s ease-out forwards; }
-    .burst span:nth-child(1){ left: 10%; top: 40%; background:#FFD54A; transform: rotate(10deg); animation-delay:0.05s;}
-    .burst span:nth-child(2){ left: 30%; top: 12%; background:#FF8A65; transform: rotate(-20deg); animation-delay:0.08s;}
-    .burst span:nth-child(3){ left: 55%; top: 8%; background:#81C784; transform: rotate(30deg); animation-delay:0.12s;}
-    .burst span:nth-child(4){ left: 80%; top: 28%; background:#4FC3F7; transform: rotate(-10deg); animation-delay:0.16s;}
-    .burst span:nth-child(5){ left: 70%; top: 60%; background:#B39DDB; transform: rotate(40deg); animation-delay:0.18s;}
-    .burst span:nth-child(6){ left: 40%; top: 75%; background:#FFCDD2; transform: rotate(-30deg); animation-delay:0.22s;}
-    @keyframes pop { 0% { opacity: 0; transform: translateY(0) scale(0.4) rotate(0deg); } 50% { opacity: 1; transform: translateY(-22px) scale(1.05) rotate(12deg); } 100% { opacity: 1; transform: translateY(-38px) scale(1) rotate(24deg); } }
-
-    .details { text-align:left; margin-top: 12px; font-size: 0.95rem; color: #374151; }
-    .details .row { display:flex; justify-content:space-between; padding:8px 0; border-bottom: 1px dashed #f0f0f0; }
-    .details .row:last-child { border-bottom: none; }
-
-    /* primary CTA uses red gradient + matching shadow */
-    .btn {
-      display:inline-block;
-      padding: 12px 18px;
-      border-radius: 12px;
-      border: none;
-      cursor: pointer;
-      font-weight: 800;
-      font-size: 1rem;
-      color:#fff;
+      width:76px; height:76px; margin: -38px auto 10px;
+      border-radius:50%;
+      display:grid; place-items:center;
       background: linear-gradient(135deg,#e53935,#c62828);
-      box-shadow: 0 14px 40px rgba(198,40,40,0.12);
-      transition: transform .15s cubic-bezier(.2,.9,.2,1), box-shadow .15s;
+      color:#fff; box-shadow:0 12px 36px rgba(198,40,40,0.12);
     }
-    .btn:hover { transform: translateY(-4px); box-shadow: 0 22px 60px rgba(198,40,40,0.16); }
-    .btn.secondary {
-      background: transparent;
-      color: #6b7280;
-      border: 1px solid #e6e9ef;
-      box-shadow: 0 6px 18px rgba(16,24,40,0.06);
+    .amount { font-weight:800; font-size:1.15rem; margin-top:6px; color:#111; }
+    .meta { color:#6b7280; font-size:0.95rem; margin-bottom:12px; }
+
+    .card .details { margin-top:12px; text-align:left; }
+    .actions { margin-top:18px; display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+
+    .btn {
+      padding:10px 16px; border-radius:12px; border:none; cursor:pointer;
+      font-weight:800; color:#fff; background: linear-gradient(135deg,#e53935,#c62828);
+      box-shadow:0 14px 40px rgba(198,40,40,0.12); transition:transform .15s, box-shadow .15s;
     }
+    .btn:hover{ transform:translateY(-4px); box-shadow:0 22px 60px rgba(198,40,40,0.16); }
+    .btn.ghost{
+      background:transparent; color:#374151; border:1px solid #e6e6e6; box-shadow:0 6px 18px rgba(16,24,40,0.06);
+    }
+    .small { font-size:0.9rem; color:#6b7280; }
+
+    /* copy / toast */
+    .copy-row{ display:flex; gap:8px; align-items:center; }
+    .copy-btn{
+      padding:6px 8px; border-radius:8px; border:1px solid #eee; background:#fff; cursor:pointer; font-weight:700;
+      box-shadow:0 6px 18px rgba(16,24,40,0.04);
+    }
+    .toast {
+      position: fixed; left:50%; transform:translateX(-50%); bottom:28px;
+      background:#0f1724;color:#fff;padding:10px 14px;border-radius:10px;box-shadow:0 8px 30px rgba(2,6,23,0.3);
+      opacity:0; pointer-events:none; transition:opacity .22s;
+    }
+    .toast.show{ opacity:1; pointer-events:auto; }
 
     /* responsive */
-    @media (max-width: 900px) {
-      .wrap { grid-template-columns: 1fr; gap: 18px; padding: 18px; }
-      .burst { left: auto; right: -22px; top: -22px; transform: rotate(-8deg); }
-      .card { margin-top: 6px; }
+    @media (max-width:900px){
+      .wrap{ grid-template-columns:1fr; padding:18px; gap:18px; }
+      .card{ margin-top:6px; }
     }
-    @media (max-width: 420px) {
-      .wrap { padding: 12px; gap: 12px; }
-      .panel { padding: 18px; border-radius: 12px; }
-      .card { padding: 16px; border-radius: 12px; }
-      .check { width: 64px; height: 64px; }
-      h1 { font-size: 1.3rem; }
+    @media (max-width:420px){
+      .wrap{ padding:12px; gap:12px; }
+      .panel{ padding:18px; border-radius:12px; }
+      .card{ padding:16px; border-radius:12px; }
+      .check{ width:64px;height:64px; }
+      h1{ font-size:1.25rem; }
     }
   </style>
 </head>
 <body>
-  <main class="wrap" role="main">
+  <main class="wrap" role="main" aria-labelledby="success-title">
     <section class="panel" aria-labelledby="success-title">
       <span class="badge">Payment Complete</span>
-      <h1 id="success-title">Thank you — Payment Successful 🎉</h1>
-      <p class="sub">Your payment went through safely. We've recorded the transaction. You can download a receipt or return to the homepage.</p>
+      <h1 id="success-title">Thanks — Payment Successful 🎉</h1>
+      <p class="sub">Your transaction is complete. Details below — you can copy IDs or print the receipt.</p>
 
       <div class="details" aria-live="polite">
-        <div class="row"><div>Order ID</div><div id="orderId"><%= order_id || '—' %></div></div>
-        <div class="row"><div>Payment ID</div><div id="paymentId"><%= payment_id || '—' %></div></div>
-        <div class="row"><div>Amount</div><div id="amountPaid"><%= amount ? ('₹' + (Number(amount)/100).toFixed(2)) : '—' %></div></div>
+        <div class="row"><div class="k">Order ID</div>
+          <div class="v copy-row">
+            <span id="orderId"><%= order_id || '—' %></span>
+            <% if (order_id) { %>
+              <button class="copy-btn" data-copy="<%= order_id %>" aria-label="Copy Order ID">Copy</button>
+            <% } %>
+          </div>
+        </div>
+
+        <div class="row"><div class="k">Payment ID</div>
+          <div class="v copy-row">
+            <span id="paymentId"><%= payment_id || '—' %></span>
+            <% if (payment_id) { %>
+              <button class="copy-btn" data-copy="<%= payment_id %>" aria-label="Copy Payment ID">Copy</button>
+            <% } %>
+          </div>
+        </div>
+
+        <div class="row"><div class="k">Amount</div>
+          <div class="v" id="amountPaid"><%= amount ? ('₹' + (Number(amount)/100).toFixed(2)) : '—' %></div>
+        </div>
       </div>
     </section>
 
-    <aside class="card" aria-labelledby="card-title">
-      <!-- <div class="burst" aria-hidden="true">
-        <span></span><span></span><span></span><span></span><span></span><span></span>
-      </div> -->
-
-      <div class="check" aria-hidden="true" aria-label="Success">
-        <!-- checkmark SVG -->
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <aside class="card" aria-labelledby="card-actions">
+      <div class="check" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="42" height="42" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <path d="M20 6L9 17l-5-5"></path>
         </svg>
       </div>
 
       <div class="amount" id="amountDisplay"><%= amount ? ('₹' + (Number(amount)/100).toFixed(2)) : '₹0.00' %></div>
-      <div class="meta">Payment processed securely via Razorpay</div>
+      <div class="meta small">Payment processed securely via Razorpay</div>
 
-      <div class="details">
-        <div class="row"><div>Receipt</div><div id="receiptId"><%= receipt || '—' %></div></div>
-        <div class="row"><div>Status</div><div>Success</div></div>
+      <div class="details" style="margin-top:12px;">
+        <div class="row"><div class="k">Receipt</div><div class="v" id="receiptId"><%= receipt || '—' %></div></div>
+        <div class="row"><div class="k">Status</div><div class="v">Success</div></div>
       </div>
 
-      <div style="margin-top:18px; display:flex; gap:10px; justify-content:center;">
-        <a href="/"><button class="btn">Back to Home</button></a>
-        <a href="#"><button class="btn secondary" id="downloadBtn">Download Receipt</button></a>
+      <div class="actions" id="card-actions">
+        <a href="/"><button class="btn" type="button">Back to Home</button></a>
+        <button class="btn ghost" id="printBtn" type="button" aria-label="Print receipt">Print / Download</button>
       </div>
     </aside>
   </main>
 
+  <div id="toast" class="toast" role="status" aria-live="polite">Copied to clipboard</div>
+
   <script>
-    // download/print
-    document.getElementById('downloadBtn').addEventListener('click', (e) => {
-      e.preventDefault();
+    // copy buttons
+    document.querySelectorAll('.copy-btn').forEach(btn=>{
+      btn.addEventListener('click', async (e)=>{
+        const val = btn.getAttribute('data-copy') || '';
+        try {
+          await navigator.clipboard.writeText(val);
+          showToast('Copied to clipboard');
+        } catch (err) {
+          // fallback
+          const ta = document.createElement('textarea');
+          ta.value = val; document.body.appendChild(ta); ta.select();
+          try { document.execCommand('copy'); showToast('Copied to clipboard'); } catch(e){ alert('Copy failed: ' + val); }
+          ta.remove();
+        }
+      });
+    });
+
+    // print / download
+    document.getElementById('printBtn').addEventListener('click', () => {
       window.print();
     });
+
+    // toast util
+    const toast = document.getElementById('toast');
+    let toastTimer = null;
+    function showToast(msg = 'Done') {
+      toast.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(()=> toast.classList.remove('show'), 2200);
+    }
+
+    // accessibility: announce if no IDs present
+    (function announceMissing(){
+      const order = "<%= order_id ? 'ok' : '' %>";
+      if(!order){
+        showToast('Note: no order/payment IDs available');
+      }
+    }());
   </script>
 </body>
 </html>

@@ -3,6 +3,7 @@ require('dotenv').config(); // load .env first
 
 const express = require('express');
 const path = require('path');
+const morgan = require('morgan');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,9 +20,10 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(morgan('dev'));
 
 // routes
-app.get('/', (req, res) => res.render('utsav'));
+app.get('/', (req, res) => res.render('utsav')); // your homepage (utsav.ejs)
 
 app.get('/payment-success', (req, res) => {
   const { order_id, payment_id, amount, receipt } = req.query;
@@ -34,8 +36,8 @@ app.get('/payment-success', (req, res) => {
   });
 });
 
-
-const paymentRoutes = require('./routes/paymentRoutes'); // requires AFTER dotenv
+// mount payment routes (requires AFTER dotenv so keys are available)
+const paymentRoutes = require('./routes/paymentRoutes');
 app.use('/payment', paymentRoutes);
 
 // 404

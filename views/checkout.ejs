@@ -4,8 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Checkout</title>
+
+  <link rel="stylesheet" href="/css/style.css" />
+
   <style>
-    /* (styles same as your polished version) */
+    /* minimal local overrides to keep the template self-contained */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html,body { height: 100%; }
     body {
@@ -20,7 +23,6 @@
       justify-content: center;
       padding: 20px;
     }
-    a { text-decoration: none; color: inherit; }
 
     .container {
       width: 100%;
@@ -31,37 +33,72 @@
     }
     @keyframes containerEntry { from { transform: translateY(8px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-    .alert-bar { background: linear-gradient(135deg, #c62828 0%, #b71c1c 100%); color: #fff; padding: 10px 18px; border-radius: 12px; text-align: center; margin-bottom: 22px; box-shadow: 0 12px 30px rgba(183,28,28,0.14); font-size: 0.98rem; font-weight: 700; position: relative; overflow: hidden; animation: slideInDown 0.6s ease-out, alertPulse 2.6s ease-in-out 0.9s infinite; }
-    @keyframes slideInDown { from { transform: translateY(-10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    @keyframes alertPulse { 0% { box-shadow: 0 8px 25px rgba(183,28,28,0.22); transform: translateY(0); } 50% { box-shadow: 0 18px 45px rgba(183,28,28,0.12); transform: translateY(-2px); } 100% { box-shadow: 0 8px 25px rgba(183,28,28,0.22); transform: translateY(0); } }
+    .alert-bar {
+      background: linear-gradient(135deg, #c62828 0%, #b71c1c 100%);
+      color: #fff;
+      padding: 10px 18px;
+      border-radius: 12px;
+      text-align: center;
+      margin-bottom: 22px;
+      box-shadow: 0 12px 30px rgba(183,28,28,0.14);
+      font-size: 0.98rem;
+      font-weight: 700;
+      position: relative;
+      overflow: hidden;
+    }
 
     .layout { display: grid; grid-template-columns: 1fr 420px; gap: 28px; align-items: start; margin-top: 4.5rem; }
-    .info { background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(255,255,255,0.98)); padding: 22px; border-radius: 14px; box-shadow: 0 10px 40px rgba(16,24,40,0.04); transition: transform .35s cubic-bezier(.2,.9,.2,1), box-shadow .35s; }
-    .info:hover { transform: translateY(-6px); box-shadow: 0 22px 60px rgba(16,24,40,0.06); }
+    .info {
+      background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(255,255,255,0.98));
+      padding: 22px;
+      border-radius: 14px;
+      box-shadow: 0 10px 40px rgba(16,24,40,0.04);
+      transition: transform .35s cubic-bezier(.2,.9,.2,1), box-shadow .35s;
+    }
     .info h1 { font-size: 1.25rem; margin-bottom: 8px; color: #111; }
-    .info p { color: #444; line-height: 1.5; font-size: 0.95rem; margin-bottom: 14px; }
-    .price-chip { display: inline-block; background: linear-gradient(90deg,#6c63ff,#8e7bff); color: #fff; padding: 8px 12px; border-radius: 999px; font-weight: 700; margin-top: 8px; letter-spacing: .2px; box-shadow: 0 12px 36px rgba(108,99,255,0.14); transition: transform .22s ease; }
-    .price-chip:hover { transform: translateY(-4px); }
+    .price-chip { display: inline-block; background: linear-gradient(90deg,#6c63ff,#8e7bff); color: #fff; padding: 8px 12px; border-radius: 999px; font-weight: 700; margin-top: 8px; letter-spacing: .2px; box-shadow: 0 12px 36px rgba(108,99,255,0.14); }
 
-    .checkout-card { background: linear-gradient(180deg, #ffffff, #fbfdff); padding: 22px; border-radius: 16px; box-shadow: 0 18px 60px rgba(16,24,40,0.06); position: relative; overflow: hidden; }
+    .checkout-card {
+      background: linear-gradient(180deg, #ffffff, #fbfdff);
+      padding: 22px;
+      border-radius: 16px;
+      box-shadow: 0 18px 60px rgba(16,24,40,0.06);
+      position: relative;
+      overflow: hidden;
+    }
     .card-title { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom: 14px; }
     .card-title h2 { font-size:1.15rem; color:#111; }
     .small-muted { font-size:0.88rem; color:#6b7280; }
 
     .form-group { margin-bottom: 14px; position: relative; }
     label { display:block; font-size:0.86rem; color:#374151; margin-bottom:6px; font-weight:600; }
-    input, select { width:100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #e6e9ef; font-size: 0.96rem; outline: none; transition: 0.18s ease, box-shadow .18s ease, transform .12s ease; background: #fff; }
+    input { width:100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #e6e9ef; font-size: 0.96rem; outline: none; background: #fff; }
     input::placeholder { color: #9aa0a6; }
-    input:focus { box-shadow: 0 12px 30px rgba(108,99,255,0.12); border-color: #6c63ff; transform: translateY(-2px); }
+    input:focus { box-shadow: 0 12px 30px rgba(108,99,255,0.12); border-color: #6c63ff; }
 
     .actions { margin-top: 10px; display:flex; flex-direction:column; gap:10px; }
 
-    :root { --btn-shadow: 0 12px 30px rgba(16,24,40,0.08); --btn-shadow-strong: 0 18px 50px rgba(108,99,255,0.16); }
+    :root { --btn-shadow: 0 12px 30px rgba(16,24,40,0.08); --btn-shadow-strong: 0 18px 50px rgba(108,99,255,0.16); --brand-red: #c62828; }
 
-    .btn, .homebtn { display:inline-block; padding: 12px 14px; border-radius: 20px; border: none; cursor: pointer; font-weight: 700; font-size: 1rem; box-shadow: var(--btn-shadow); transition: transform .14s cubic-bezier(.2,.9,.2,1), box-shadow .14s cubic-bezier(.2,.9,.2,1), opacity .12s; position: relative; overflow: hidden; }
-    .btn-primary { background: linear-gradient(90deg,#6c63ff,#8e7bff); color:#fff; }
+    .btn, .homebtn {
+      display:inline-block;
+      padding: 12px 14px;
+      border-radius: 20px;
+      border: none;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 1rem;
+      box-shadow: var(--btn-shadow);
+      transition: transform .14s, box-shadow .14s, opacity .12s;
+      position: relative;
+      overflow: hidden; /* for ripple */
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--brand-red), #b71c1c);
+      color:#fff;
+    }
     .btn-ghost, .homebtn { background: transparent; color: #6b7280; border: 1px solid #e6e9ef; }
-    .btn:hover, .homebtn:hover, .btn:focus, .homebtn:focus { transform: translateY(-3px); box-shadow: var(--btn-shadow-strong); outline: none; opacity: 0.98; }
+    .btn:hover, .homebtn:hover, .btn:focus, .homebtn:focus { transform: translateY(-3px); box-shadow: var(--btn-shadow-strong); outline: none; }
     .btn:active, .homebtn:active { transform: translateY(0px) scale(.995); box-shadow: 0 8px 20px rgba(16,24,40,0.06); }
     .meta { margin-top:12px; font-size:0.9rem; color:#6b7280; }
     .error { color:#b91c1c; font-size:0.87rem; margin-top:6px; display:none; }
@@ -69,12 +106,23 @@
     @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .checkout-card { order: 2; margin-top: 12px; } .info { order: 1; } .container { padding: 18px; } .checkout-card, .info { padding: 18px; } }
     @media (max-width: 420px) { body { padding: 5px; } .checkout-card { padding: 12px; border-radius: 12px; } .info { padding: 12px; border-radius: 12px; margin-top: -12px; } .price-chip { font-size: 0.95rem; padding: 7px 10px; } input { padding: 10px; font-size: 0.95rem; } .layout { margin-top: 2.5rem; gap: 12px; } }
 
+    /* ensure ripple span doesn't block pointer events when removed */
+    .btn span.ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.28);
+      transform: scale(0);
+      pointer-events: none;
+    }
   </style>
-  <link rel="stylesheet" href="/css/style/.css">
 </head>
 <body>
   <div class="container">
-    <div class="alert-bar" role="status">TEST MODE — No real money will be charged. Use test card details.</div>
+    <% if (key_id && key_id.startsWith('rzp_test_')) { %>
+      <div class="alert-bar" role="status">TEST MODE — Use Razorpay test card 4111 1111 1111 1111 (any future expiry / CVC 123). No real money charged.</div>
+    <% } else { %>
+      <div class="alert-bar" role="status">LIVE MODE — Real payments will be processed. Double-check keys before proceeding.</div>
+    <% } %>
 
     <div class="layout">
       <div class="info" aria-hidden="false">
@@ -85,7 +133,7 @@
           <div class="small-muted">Amount to pay</div>
           <div class="price-chip">₹<%= (amount/100).toFixed(2) %></div>
           <div style="margin-top:10px;">
-            <a href="/"><button class="homebtn btn-ghost" type="button">Go Back to home page</button></a>
+            <a href="/"><button class="homebtn btn-ghost" type="button">Back to home</button></a>
           </div>
         </div>
 
@@ -156,21 +204,23 @@
       showError('errEmail', false);
     });
 
-    // ripple on pay (small decorative)
-    payBtn.addEventListener('mousedown', (e) => {
+    // ripple on pay (decorative)
+    payBtn.addEventListener('pointerdown', (e) => {
       const circle = document.createElement('span');
-      circle.style.position = 'absolute';
-      circle.style.borderRadius = '50%';
-      circle.style.background = 'rgba(255,255,255,0.28)';
-      const d = Math.max(payBtn.clientWidth, payBtn.clientHeight);
+      circle.className = 'ripple';
+      const d = Math.max(payBtn.clientWidth, payBtn.clientHeight) * 1.2;
       circle.style.width = circle.style.height = d + 'px';
       const rect = payBtn.getBoundingClientRect();
       circle.style.left = (e.clientX - rect.left - d/2) + 'px';
       circle.style.top = (e.clientY - rect.top - d/2) + 'px';
-      circle.style.transform = 'scale(0)';
-      circle.style.transition = 'all 0.6s linear';
       payBtn.appendChild(circle);
-      setTimeout(()=> circle.remove(), 650);
+      // animate
+      requestAnimationFrame(() => {
+        circle.style.transform = 'scale(1)';
+        circle.style.opacity = '1';
+        circle.style.transition = 'transform 0.55s cubic-bezier(.18,.9,.19,1), opacity 0.55s';
+      });
+      setTimeout(()=> circle.remove(), 700);
     });
 
     payBtn.addEventListener('click', async () => {
@@ -208,11 +258,11 @@
           key: RAZORPAY_KEY_ID,
           amount: order.amount,
           currency: order.currency,
-          name: name,
-          description: 'Order Payment',
+          name: name || 'Ira Edu Tech',
+          description: 'Workshop fee',
           order_id: order.id,
-          prefill: { name: name, email: email, contact: phone || "9999999999" },
-          theme: { color: '#6c63ff' },
+          prefill: { name: name, email: email, contact: phone || "" },
+          theme: { color: '#c62828' },
 
           handler: async function (response) {
             try {
@@ -223,7 +273,6 @@
               });
               const v = await verifyRes.json();
               if (v.success) {
-                // redirect using server response values
                 const q = new URLSearchParams({
                   order_id: v.order_id || response.razorpay_order_id || '',
                   payment_id: v.payment_id || response.razorpay_payment_id || '',

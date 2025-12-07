@@ -577,143 +577,190 @@
 
 /* =================== STX TESTIMONIAL SLIDER =================== */
 /* Put this at the end of the page (after HTML) or load on DOMContentLoaded */
+/* ================== tst_eco_testimonials (pointer-safe, mobile-fixed) ================== */
 (function () {
-  const stage = document.getElementById('stx_stage');
-  const track = document.getElementById('stx_track');
-  const dotsBox = document.getElementById('stx_dots');
-  const prevBtn = document.getElementById('stx_prev');
-  const nextBtn = document.getElementById('stx_next');
+  const stage = document.getElementById('tst_eco_stage');
+  const track = document.getElementById('tst_eco_track');
+  const dotsBox = document.getElementById('tst_eco_dots');
+  const prevBtn = document.getElementById('tst_eco_prev');
+  const nextBtn = document.getElementById('tst_eco_next');
+
   if (!stage || !track || !dotsBox) return;
 
-  const cards = Array.from(track.querySelectorAll('.stx_card'));
+  const cards = Array.from(track.querySelectorAll('.tst_eco_card'));
   const total = cards.length;
-  let idx = 0;
+  let index = 0;
   const AUTOPLAY = true;
   const DELAY = 4200;
-  let timer = null;
-  let pointerActive = false;
-  let startX = 0;
+  let autoplayTimer = null;
 
-  /* build dots */
+  // pointer drag state
+  let pointerId = null;
+  let startX = 0;
+  let startTranslate = 0;
+  let isDragging = false;
+
+  // build dots
   function buildDots() {
     dotsBox.innerHTML = '';
-    for (let i=0;i<total;i++){
+    for (let i = 0; i < total; i++) {
       const d = document.createElement('button');
-      d.className = 'stx_dot';
-      d.setAttribute('aria-label', `Go to slide ${i+1}`);
-      d.dataset.index = i;
-      if (i === 0) d.classList.add('active');
-      d.addEventListener('click', () => goto(i, true));
+      d.className = 'tst_eco_dot';
+      d.setAttribute('aria-label', `Go to slide ${i + 1}`);
+      d.dataset.idx = i;
+      if (i === 0) d.classList.add('tst_eco_active');
+      d.addEventListener('click', () => goTo(i, true));
       dotsBox.appendChild(d);
     }
   }
 
-  /* compute center transform and apply */
-  function update(animate = true) {
+  // compute translation to center card at index
+  function computeTranslateForIndex(i) {
     const stageW = stage.clientWidth;
-    const card = cards[idx];
+    const card = cards[i];
+    const cardRect = card.getBoundingClientRect();
+    const cardLeft = card.offsetLeft; // relative to track
     const cardW = card.offsetWidth;
     const desiredLeft = Math.max((stageW - cardW) / 2, 0);
-    const cardLeft = card.offsetLeft;
-    const tx = -(cardLeft - desiredLeft);
-
-    track.style.transition = animate ? 'transform 600ms cubic-bezier(.22,.9,.2,1)' : 'none';
-    track.style.transform = `translate3d(${tx}px,0,0)`;
-
-    cards.forEach((c,i) => c.classList.toggle('is-active', i === idx));
-    Array.from(dotsBox.children).forEach((d,i) => d.classList.toggle('active', i === idx));
+    return -(cardLeft - desiredLeft);
   }
 
-  /* go to index */
-  function goto(i, user = false) {
-    idx = (i + total) % total;
-    update(true);
-    if (user) restartAutoplay();
-  }
-
-  /* autoplay */
-  function startAuto() {
-    stopAuto();
-    if (!AUTOPLAY) return;
-    timer = setInterval(() => goto(idx + 1), DELAY);
-  }
-  function stopAuto() { if (timer) { clearInterval(timer); timer = null; } }
-  function restartAutoplay() { stopAuto(); startAuto(); }
-
-  /* arrow handlers */
-  if (prevBtn) prevBtn.addEventListener('click', () => goto(idx - 1, true));
-  if (nextBtn) nextBtn.addEventListener('click', () => goto(idx + 1, true));
-
-  /* swipe / pointer */
-  function onPointerDown(e) {
-    pointerActive = true;
-    startX = e.touches ? e.touches[0].clientX : e.clientX;
-    track.style.transition = 'none';
-    stopAuto();
-  }
-  function onPointerMove(e) {
-    if (!pointerActive) return;
-    const x = e.touches ? e.touches[0].clientX : e.clientX;
-    const dx = x - startX;
-    const curTx = getTranslateX(track);
-    track.style.transform = `translate3d(${curTx + dx}px,0,0)`;
-  }
-  function onPointerUp(e) {
-    if (!pointerActive) return;
-    pointerActive = false;
-    const endX = e.changedTouches ? e.changedTouches[0].clientX : e.clientX;
-    const dx = endX - startX;
-    if (Math.abs(dx) > 60) {
-      if (dx < 0) goto(idx + 1, true); else goto(idx - 1, true);
-    } else {
-      update(true);
-    }
-    restartAutoplay();
-  }
-  function getTranslateX(el) {
-    const st = window.getComputedStyle(el).transform;
+  // get current translateX (px)
+  function getCurrentTranslate() {
+    const st = getComputedStyle(track).transform;
     if (st && st !== 'none') {
-      const m = st.match(/matrix.*\((.+)\)/);
+      const m = st.match(/matrix\(([^)]+)\)/);
       if (m) {
-        const vals = m[1].split(', ');
-        return parseFloat(vals[4]);
+        const vals = m[1].split(',').map(s => parseFloat(s));
+        return vals[4] || 0;
+      }
+      const m3 = st.match(/matrix3d\(([^)]+)\)/);
+      if (m3) {
+        const vals = m3[1].split(',').map(s => parseFloat(s));
+        return vals[12] || 0;
       }
     }
     return 0;
   }
 
-  /* keyboard */
-  function onKey(e) {
-    if (e.key === 'ArrowLeft') goto(idx - 1, true);
-    if (e.key === 'ArrowRight') goto(idx + 1, true);
+  // apply transform and active classes
+  function applyTranslate(tx, animate = true) {
+    track.style.transition = animate ? 'transform 600ms cubic-bezier(.22,.9,.2,1)' : 'none';
+    track.style.transform = `translate3d(${tx}px,0,0)`;
   }
 
-  /* init */
-  buildDots();
-  // small delay to ensure layout measured
-  setTimeout(() => { update(false); startAuto(); }, 80);
+  function updateUI(animate = true) {
+    const tx = computeTranslateForIndex(index);
+    applyTranslate(tx, animate);
+    cards.forEach((c, i) => c.classList.toggle('is-active', i === index));
+    Array.from(dotsBox.children).forEach((d, i) => d.classList.toggle('tst_eco_active', i === index));
+  }
 
-  // events
-  stage.addEventListener('touchstart', onPointerDown, {passive:true});
-  stage.addEventListener('touchmove', onPointerMove, {passive:true});
-  stage.addEventListener('touchend', onPointerUp, {passive:true});
-  stage.addEventListener('mousedown', onPointerDown);
-  window.addEventListener('mousemove', onPointerMove);
-  window.addEventListener('mouseup', onPointerUp);
+  function goTo(i, user = false) {
+    index = ((i % total) + total) % total; // wrap safely
+    updateUI(true);
+    if (user) restartAutoplay();
+  }
 
-  stage.addEventListener('mouseenter', stopAuto);
-  stage.addEventListener('mouseleave', () => { if (AUTOPLAY) startAuto(); });
-  stage.addEventListener('focusin', stopAuto);
-  stage.addEventListener('focusout', () => { if (AUTOPLAY) startAuto(); });
+  // autoplay controls
+  function startAutoplay() { stopAutoplay(); if (!AUTOPLAY) return; autoplayTimer = setInterval(() => goTo(index + 1), DELAY); }
+  function stopAutoplay() { if (autoplayTimer) { clearInterval(autoplayTimer); autoplayTimer = null; } }
+  function restartAutoplay() { stopAutoplay(); startAutoplay(); }
+
+  // pointer handlers (pointer events)
+  function onPointerDown(e) {
+    // only primary pointer
+    if (pointerId !== null) return;
+    pointerId = e.pointerId;
+    isDragging = true;
+    startX = e.clientX;
+    startTranslate = getCurrentTranslate();
+    track.style.transition = 'none';
+    stage.setPointerCapture(pointerId);
+    stopAutoplay();
+  }
+
+  function onPointerMove(e) {
+    if (!isDragging || e.pointerId !== pointerId) return;
+    const dx = e.clientX - startX;
+    // live dragging
+    applyTranslate(startTranslate + dx, false);
+  }
+
+  function onPointerUp(e) {
+    if (!isDragging || e.pointerId !== pointerId) return;
+    isDragging = false;
+    stage.releasePointerCapture(pointerId);
+    pointerId = null;
+
+    const dx = e.clientX - startX;
+    // threshold to change slide
+    const threshold = Math.min(stage.clientWidth * 0.12, 80);
+    if (dx < -threshold) goTo(index + 1, true);
+    else if (dx > threshold) goTo(index - 1, true);
+    else updateUI(true); // snap back
+
+    restartAutoplay();
+  }
+
+  // keyboard
+  function onKey(e) {
+    if (e.key === 'ArrowLeft') { goTo(index - 1, true); }
+    if (e.key === 'ArrowRight') { goTo(index + 1, true); }
+  }
+
+  // safe init after layout
+  function init() {
+    buildDots();
+    // reveal cards with stagger using requestAnimationFrame
+    cards.forEach((c, i) => {
+      requestAnimationFrame(() => {
+        setTimeout(() => c.classList.add('tst_eco_visible'), i * 90);
+      });
+    });
+
+    // calculate and center
+    setTimeout(() => updateUI(false), 80);
+    startAutoplay();
+  }
+
+  // attach events
+  prevBtn && prevBtn.addEventListener('click', () => goTo(index - 1, true));
+  nextBtn && nextBtn.addEventListener('click', () => goTo(index + 1, true));
+
+  // pointer events on stage (support mouse+touch)
+  stage.addEventListener('pointerdown', onPointerDown);
+  stage.addEventListener('pointermove', onPointerMove);
+  stage.addEventListener('pointerup', onPointerUp);
+  stage.addEventListener('pointercancel', onPointerUp);
+  stage.addEventListener('pointerleave', onPointerUp);
+
+  // pause on hover/focus
+  stage.addEventListener('mouseenter', stopAutoplay);
+  stage.addEventListener('mouseleave', () => { if (AUTOPLAY) startAutoplay(); });
+  stage.addEventListener('focusin', stopAutoplay);
+  stage.addEventListener('focusout', () => { if (AUTOPLAY) startAutoplay(); });
 
   document.addEventListener('keydown', onKey);
 
-  // responsive recalculation
-  let rt;
+  // responsive: recalc center on resize
+  let resizeTO = null;
   window.addEventListener('resize', () => {
-    clearTimeout(rt);
-    rt = setTimeout(() => update(false), 120);
+    clearTimeout(resizeTO);
+    resizeTO = setTimeout(() => updateUI(false), 120);
   });
+
+  // wait for images to load (so widths are stable)
+  let images = track.querySelectorAll('img');
+  let loaded = 0;
+  if (images.length === 0) init();
+  else {
+    images.forEach(img => {
+      if (img.complete) { loaded++; if (loaded === images.length) init(); }
+      else img.addEventListener('load', () => { loaded++; if (loaded === images.length) init(); });
+      img.addEventListener('error', () => { loaded++; if (loaded === images.length) init(); });
+    });
+  }
 
 })();
 
