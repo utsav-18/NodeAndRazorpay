@@ -2106,3 +2106,82 @@ h1 .accent{
   align-items: center;
   margin-top: 30px;
 }
+
+/* ================= NOTIFICATION WIDGET (notif_ prefix) ================= */
+
+.notif_widget {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  z-index: 1000001;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: linear-gradient(180deg,#fff,#fffefc);
+  border: 1px solid rgba(10,10,10,0.06);
+  padding: 12px 14px;
+  border-radius: 12px;
+  box-shadow: 0 18px 48px rgba(6,10,20,0.12);
+  min-width: 260px;
+  max-width: 360px;
+  transform: translateY(18px) scale(.98);
+  opacity: 0;
+  transition: transform .42s cubic-bezier(.2,.9,.2,1), opacity .42s;
+  font-family: Inter, system-ui, Arial;
+  pointer-events: auto;
+}
+
+/* visible state */
+.notif_widget.notif_show {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+/* exit */
+.notif_widget.notif_hide {
+  transform: translateY(18px) scale(.98);
+  opacity: 0;
+}
+
+/* icon */
+.notif_icon {
+  width:44px;height:44px;border-radius:10px;display:grid;place-items:center;
+  background:linear-gradient(180deg,#fff7f6,#ffecec);
+  font-size:20px; box-shadow:0 8px 22px rgba(255,50,80,0.06);
+  transform-origin:center;
+  animation: notif_icon_bounce 3s ease-in-out infinite;
+}
+@keyframes notif_icon_bounce {
+  0%{transform:translateY(0)}50%{transform:translateY(-4px) rotate(-8deg)}100%{transform:translateY(0)}
+}
+
+/* text */
+.notif_text { display:flex;flex-direction:column; gap:2px; }
+.notif_line1 { font-weight:800; color:#071023; font-size:14px; }
+.notif_line2 { font-size:13px; color:#6b7280; }
+
+/* close button */
+.notif_close {
+  position:absolute;
+  right:8px;
+  top:8px;
+  background:transparent;border:none;color:#9aa0ac;font-size:14px;cursor:pointer;padding:6px;border-radius:6px;
+  transition: transform .18s, color .18s;
+}
+.notif_close:hover { transform:scale(1.06); color:#ff4b4b; }
+
+/* mobile placement: above bottom CTA (JS will update bottom) */
+@media (max-width: 760px) {
+  .notif_widget { left: auto; right: 14px; bottom: 96px; min-width:220px; max-width:300px; }
+}
+
+/* small screens: tighten */
+@media (max-width:420px){
+  .notif_widget { padding:10px 12px; min-width:200px; }
+  .notif_line1{ font-size:13px } .notif_line2{ font-size:12px }
+}
+
+/* reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .notif_widget, .notif_icon { animation: none !important; transition: none !important; }
+}

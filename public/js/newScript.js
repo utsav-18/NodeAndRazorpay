@@ -985,3 +985,141 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 })();
+
+
+
+// notif_random.js — notification that appears randomly + mobile placement above CTA
+(function(){
+  const WIDGET_ID = 'notif_widget';
+  const CLOSE_ID = 'notif_close';
+  const LINE1 = 'notif_line1';
+  const LINE2 = 'notif_line2';
+  const CTA_WRAPPER_ID = 'ucta_wrapper'; // your CTA wrapper id — used to position above CTA on mobile
+
+  const names = [
+    'Aman','Priya','Rohit','Sneha','Arjun','Neha','Vikas','Sakshi','Karan','Asha',
+    'Ishaan','Pooja','Ritu','Ankit','Meera','Varun','Simran','Aditya','Reema','Sameer'
+  ];
+
+  const widget = document.getElementById(WIDGET_ID);
+  const closeBtn = document.getElementById(CLOSE_ID);
+  const line1 = document.getElementById(LINE1);
+  const line2 = document.getElementById(LINE2);
+  const ctaWrap = document.getElementById(CTA_WRAPPER_ID);
+
+  if (!widget || !closeBtn || !line1 || !line2) return;
+
+  // session flag — if user closed, do not re-open this session
+  const SESSION_KEY = 'notif_closed_v1';
+  const closed = sessionStorage.getItem(SESSION_KEY) === '1';
+  if (closed) return;
+
+  // helper: pick random int in range [a,b]
+  function randInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+
+  // generate message
+  function makeMessage(){
+    const name = names[randInt(0, names.length-1)];
+    // random verbs/phrasing for variety
+    const verbs = [
+      'just booked', 'grabbed', 'signed up for', 'reserved a seat for', 'joined'
+    ];
+    const verb = verbs[randInt(0, verbs.length-1)];
+    line1.textContent = `${name} ${verb} this course!`;
+    // secondary line variants
+    const tails = [
+      'Limited seats — hurry up!',
+      'Seats filling fast — don’t miss out!',
+      'Only a few seats left — join now!',
+      'Claimed a spot — join before it’s gone!'
+    ];
+    line2.textContent = tails[randInt(0, tails.length-1)];
+  }
+
+  // show widget with animation
+  function showWidget(){
+    if (sessionStorage.getItem(SESSION_KEY) === '1') return;
+    makeMessage();
+    // position on mobile above CTA if CTA exists
+    if (ctaWrap && window.innerWidth <= 760){
+      const rect = ctaWrap.getBoundingClientRect();
+      // compute bottom offset so widget sits just above CTA with 12px gap
+      const gap = 12;
+      const bottomPx = window.innerHeight - rect.top + gap; // distance from bottom
+      // set inline style to place it above CTA
+      widget.style.bottom = (rect.height + gap + 8) + 'px'; // fallback
+      // safer: compute absolute bottom: place widget at (rect.height + gap) above bottom
+      widget.style.bottom = `calc(${rect.height}px + ${gap}px + 12px)`;
+      // align right on mobile
+      widget.style.left = 'auto';
+      widget.style.right = '14px';
+    } else {
+      // desktop default bottom-left
+      widget.style.left = '20px';
+      widget.style.right = 'auto';
+      widget.style.bottom = '20px';
+    }
+
+    widget.hidden = false;
+    // small delay to allow reflow then add class
+    requestAnimationFrame(()=> widget.classList.add('notif_show'));
+    widget.classList.remove('notif_hide');
+  }
+
+  // hide widget
+  function hideWidget(persist=false){
+    widget.classList.remove('notif_show');
+    widget.classList.add('notif_hide');
+    // after transition, hide element
+    setTimeout(()=> { widget.hidden = true; }, 420);
+    if (persist) sessionStorage.setItem(SESSION_KEY,'1');
+  }
+
+  // random schedule: show first after 3-9s, then every 20-50s
+  function scheduleLoop(){
+    if (sessionStorage.getItem(SESSION_KEY) === '1') return;
+    const firstDelay = randInt(3000, 9000);
+    setTimeout(function appear(){
+      showWidget();
+      // auto-hide after random short time 4-8s
+      setTimeout(()=> { hideWidget(false); }, randInt(4200, 8200));
+      // schedule next
+      const next = randInt(20000, 50000);
+      setTimeout(appear, next);
+    }, firstDelay);
+  }
+
+  // close handler
+  closeBtn.addEventListener('click', function(e){
+    e.preventDefault();
+    hideWidget(true); // persist close this session
+  });
+
+  // clicking widget body should proxy to CTA
+  widget.addEventListener('click', function(e){
+    // if click on close button, ignore (close handler above)
+    if (e.target === closeBtn) return;
+    const mainCTA = document.getElementById('primaryCTA');
+    if (mainCTA) mainCTA.click();
+    else window.location.href = '/payment/checkout';
+  });
+
+  // reposition on resize (when CTA height changes)
+  window.addEventListener('resize', function(){
+    if (widget.hidden) return;
+    if (ctaWrap && window.innerWidth <= 760){
+      const gap = 12;
+      widget.style.bottom = `calc(${ctaWrap.getBoundingClientRect().height}px + ${gap}px + 12px)`;
+      widget.style.left = 'auto';
+      widget.style.right = '14px';
+    } else {
+      widget.style.left = '20px';
+      widget.style.right = 'auto';
+      widget.style.bottom = '20px';
+    }
+  });
+
+  // start only if not closed
+  scheduleLoop();
+
+})();
