@@ -114,13 +114,18 @@
       transform: scale(0);
       pointer-events: none;
     }
+    .lathha{
+      height: 60px;
+    }
   </style>
 </head>
 <body>
+
   <div class="container">
     <% if (key_id && key_id.startsWith('rzp_test_')) { %>
       <div class="alert-bar" role="status">TEST MODE — Use Razorpay test card 4111 1111 1111 1111 (any future expiry / CVC 123). No real money charged.</div>
     <% } else { %>
+      <div class="lathha"></div>
       <div class="alert-bar" role="status">LIVE MODE — Real payments will be processed. Double-check keys before proceeding.</div>
     <% } %>
 
