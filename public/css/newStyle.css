@@ -2094,6 +2094,9 @@ h1 .accent{
   .card-art {
     height: 140px;
   }
+  .ucta_badge{
+    display: none;
+  }
 }
 
 
