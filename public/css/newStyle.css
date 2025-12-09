@@ -888,6 +888,9 @@ h1 .accent{
   .ucta_price { font-size: 13px; padding: 5px 8px; }
   .ucta_btn { padding: 8px 10px; font-size: 13px; }
   .ucta_timer { font-size: 12px; padding: 5px 8px; }
+  .ucta_badge{
+    display: none;
+  }
 }
 
 /* accessibility: reduce motion respect */
