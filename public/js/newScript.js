@@ -219,31 +219,27 @@
 
 
 }
-// u_cta_main.js — updated: fresh timer, footer-hide, reduced-motion, cleanup, reset helper
+
+
+{
+
+
+
+//Cta
+// ucta_final_centered.js — timer + center pulse class
 (function () {
   const DEFAULT_MINUTES = 15;
-  const CTA_WRAPPER_ID = "u_cta_wrapper";
-  const TIMER_TEXT_ID = "u_cta_timer_text";
-  const REGISTER_ID = "u_cta_button";
-  const PRICE_ID = "u_cta_price";
+  const TIMER_ID = 'ucta_timer_text';
+  const TIMER_BOX_ID = 'ucta_timer_box';
+  const BTN_ID = 'ucta_btn';
 
-  // safe DOM access
-  function $id(id) { return document.getElementById(id); }
+  const timerText = document.getElementById(TIMER_ID);
+  const timerBox = document.getElementById(TIMER_BOX_ID);
+  const btn = document.getElementById(BTN_ID);
+  if (!timerText || !timerBox || !btn) return;
 
-  const wrapper = $id(CTA_WRAPPER_ID);
-  const timerEl = $id(TIMER_TEXT_ID);
-  const registerBtn = $id(REGISTER_ID);
-  const priceEl = $id(PRICE_ID);
-
-  if (!wrapper || !timerEl || !registerBtn) return;
-
-  // prefer-reduced-motion check
-  const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  // TIMER state
-  let secondsLeft = DEFAULT_MINUTES * 60;
-  let intervalId = null;
-  let expired = false;
+  let seconds = DEFAULT_MINUTES * 60;
+  let ended = false;
 
   function formatTime(s) {
     const m = Math.floor(s / 60);
@@ -251,103 +247,48 @@
     return `${m}:${String(sec).padStart(2, '0')} mins left`;
   }
 
-  function stopInterval() {
-    if (intervalId) {
-      clearInterval(intervalId);
-      intervalId = null;
-    }
-  }
-
-  function tickOnce() {
-    if (expired) return;
-    if (secondsLeft <= 0) {
-      timerEl.textContent = "Offer ended";
-      registerBtn.disabled = true;
-      registerBtn.style.opacity = 0.6;
-      expired = true;
-      stopInterval();
+  function tick() {
+    if (ended) return;
+    if (seconds <= 0) {
+      timerText.textContent = 'Offer ended';
+      btn.disabled = true;
+      timerBox.classList.remove('ucta_pulse');
+      ended = true;
       return;
     }
-    timerEl.textContent = formatTime(secondsLeft);
-    secondsLeft--;
+    timerText.textContent = formatTime(seconds);
+    // add gentle pulse only while offer active
+    if (!timerBox.classList.contains('ucta_pulse')) timerBox.classList.add('ucta_pulse');
+    seconds--;
   }
 
-  function startTimer() {
-    // reset any previous
-    stopInterval();
-    expired = false;
-    secondsLeft = DEFAULT_MINUTES * 60;
-    // immediate paint
-    tickOnce();
-    // if reduced motion, we still run timer text but avoid animations elsewhere
-    intervalId = setInterval(tickOnce, 1000);
-  }
+  // initial paint + interval
+  tick();
+  setInterval(tick, 1000);
 
-  // start fresh on load
-  startTimer();
-
-  // click behavior: proxy to primaryCTA if exists else navigate
-  registerBtn.addEventListener('click', (e) => {
-    // micro animation if allowed
-    if (!prefersReduced) {
-      try {
-        registerBtn.animate(
-          [{ transform: 'translateY(0)' }, { transform: 'translateY(-6px)' }, { transform: 'translateY(0)' }],
-          { duration: 300, easing: 'cubic-bezier(.2,.9,.2,1)' }
-        );
-      } catch (err) { /* ignore animation errors */ }
-    }
-
-    const primary = $id('primaryCTA');
-    if (primary) {
-      primary.click();
-      return;
-    }
+  // button click behavior (proxy to primaryCTA or fallback)
+  btn.addEventListener('click', function () {
+    const primary = document.getElementById('primaryCTA');
+    if (primary) { primary.click(); return; }
     window.location.href = '/payment/checkout';
   });
 
-  // Hide CTA when footer arrives — IntersectionObserver
-  (function setupFooterObserver() {
-    const footer = document.querySelector('footer');
-    if (!footer) return;
-
-    const obs = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          // hide
-          wrapper.style.opacity = '0';
-          wrapper.style.transform = 'translateY(40px)';
-          wrapper.style.pointerEvents = 'none';
-        } else {
-          // show
-          wrapper.style.opacity = '1';
-          wrapper.style.transform = 'translateY(0)';
-          wrapper.style.pointerEvents = 'auto';
-        }
-      });
-    }, { threshold: 0.08 });
-
-    obs.observe(footer);
-    // no need to disconnect — page lifetime is fine; if you dynamically remove footer, handle accordingly
-  })();
-
-  // expose helper on window for dev / other scripts: reset timer
+  // expose reset helper
   window.u_cta = window.u_cta || {};
-  window.u_cta.resetTimer = function (minutes) {
-    const m = Number(minutes) || DEFAULT_MINUTES;
-    secondsLeft = Math.max(1, Math.floor(m * 60));
-    expired = false;
-    registerBtn.disabled = false;
-    registerBtn.style.opacity = '';
-    tickOnce();
-    if (!intervalId) intervalId = setInterval(tickOnce, 1000);
+  window.u_cta.resetTimer = function (mins) {
+    const m = Math.max(0, Number(mins) || DEFAULT_MINUTES);
+    seconds = Math.floor(m * 60);
+    ended = false;
+    btn.disabled = false;
+    tick();
   };
-
-  // Clean up on unload (good practice)
-  window.addEventListener('beforeunload', () => {
-    stopInterval();
-  });
 })();
+
+
+
+
+
+}
 
 
 {

@@ -739,34 +739,37 @@
 </footer>
 
 
+<!-- UNIVERSAL STICKY CTA (updated: centered timer + animations, mobile tidy) -->
+<div id="ucta_wrapper" class="ucta_wrapper">
+  <div class="ucta_strip" role="region" aria-label="limited time offer">
+    <div class="ucta_inner">
 
-<!-- UNIVERSAL Sticky CTA (All names unique: u_cta_ prefix) -->
-<div id="u_cta_wrapper" class="u_cta_wrapper" role="region" aria-label="Limited-time offer">
-  <div class="u_cta_container">
-
-    <div class="u_cta_left">
-      <span class="u_cta_badge">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 2l2.6 5.6L20 9l-4 3.2L17 20l-5-3-5 3 1-7.8L2 9l5.4-1.4L12 2z" fill="currentColor"/></svg>
-        Limited Offer
-      </span>
-
-      <span id="u_cta_price" class="u_cta_price">₹199/-</span>
-      <span class="u_cta_old_price">₹2999</span>
-    </div>
-
-    <div class="u_cta_center">
-      <div class="u_cta_timer_box">
-        <span class="u_cta_timer_icon">⏳</span>
-        <strong id="u_cta_timer_text">15:00 mins left</strong>
+      <!-- Left -->
+      <div class="ucta_left">
+        <span class="ucta_badge" aria-hidden="true">⭐ Limited Offer</span>
+        <div class="ucta_prices" aria-hidden="true">
+          <span id="ucta_price" class="ucta_price">₹199/-</span>
+          <span class="ucta_old">₹2999</span>
+        </div>
       </div>
-    </div>
 
-    <div class="u_cta_right">
-      <button id="u_cta_button" class="u_cta_button" type="button">Register now</button>
-    </div>
+      <!-- CENTER (true center on desktop) -->
+      <div class="ucta_center" aria-hidden="false">
+        <div class="ucta_timer" title="Offer time remaining" id="ucta_timer_box">
+          <span class="ucta_icon" aria-hidden="true">⏳</span>
+          <strong id="ucta_timer_text" class="ucta_timer_text" aria-live="polite">15:00 mins left</strong>
+        </div>
+      </div>
 
+      <!-- Right -->
+      <div class="ucta_right">
+        <button id="ucta_btn" class="ucta_btn" type="button" aria-label="Register now">Register Now →</button>
+      </div>
+
+    </div>
   </div>
 </div>
+
 
 
   
