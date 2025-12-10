@@ -1123,3 +1123,49 @@ document.addEventListener('DOMContentLoaded', function () {
   scheduleLoop();
 
 })();
+
+{
+
+// ========== ACTION TAKER JS (actk_) ==========
+(function () {
+  const counters = document.querySelectorAll(".actk_stat_num");
+  const timerEl = document.getElementById("actk_timer");
+  const section = document.getElementById("actk_section");
+
+  /* COUNT-UP ANIMATION */
+  const observer = new IntersectionObserver((entries) => {
+    if (entries[0].isIntersecting) {
+      counters.forEach(counter => {
+        let start = 0;
+        const end = parseInt(counter.dataset.target);
+        const duration = 1200;
+        const increment = end / (duration / 16);
+
+        function update() {
+          start += increment;
+          counter.textContent = Math.floor(start);
+          if (start < end) requestAnimationFrame(update);
+          else counter.textContent = end;
+        }
+        update();
+      });
+      observer.disconnect();
+    }
+  });
+  observer.observe(section);
+
+  /* TIMER */
+  let time =  15 * 60; // 15 minutes
+  function updateTimer() {
+    const m = Math.floor(time / 60);
+    const s = String(time % 60).padStart(2, "0");
+    timerEl.textContent = `${m}:${s}`;
+    if (time <= 0) return;
+    time--;
+  }
+  updateTimer();
+  setInterval(updateTimer, 1000);
+})();
+
+
+}

@@ -2185,3 +2185,140 @@ h1 .accent{
 @media (prefers-reduced-motion: reduce){
   .notif_widget, .notif_icon { animation: none !important; transition: none !important; }
 }
+
+
+/* ================= ACTION TAKER SECTION (actk_) ================= */
+
+.actk_section {
+  background: linear-gradient(180deg, #fff3f4 0%, #ffe8eb 100%);
+  padding: 70px 20px;
+  text-align: center;
+  font-family: Inter, system-ui, sans-serif;
+  position: relative;
+  overflow: hidden;
+}
+
+.actk_inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  position: relative;
+  animation: actk_fadeIn 1s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes actk_fadeIn {
+  0% { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.actk_tag {
+  font-weight: 800;
+  color: #ff1d40;
+  background: #ffe3e6;
+  padding: 8px 18px;
+  border-radius: 50px;
+  display: inline-block;
+  margin-bottom: 18px;
+  border: 1px solid rgba(255,0,30,0.15);
+}
+
+.actk_heading {
+  font-size: clamp(28px, 6vw, 50px);
+  font-weight: 900;
+  margin-bottom: 12px;
+  color: #111;
+}
+
+.actk_accent {
+  background: linear-gradient(90deg, #ff2e2e, #ff5b9a);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.actk_sub {
+  color: #6b7280;
+  max-width: 700px;
+  margin: 10px auto 30px;
+  font-size: 16px;
+}
+
+/* Stats */
+.actk_stats {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-bottom: 35px;
+  flex-wrap: wrap;
+}
+
+.actk_stat {
+  text-align: center;
+}
+
+.actk_stat_num {
+  font-size: 38px;
+  font-weight: 900;
+  background: linear-gradient(90deg, #ff2e2e, #ff5b9a);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.actk_stat_label {
+  display: block;
+  font-size: 14px;
+  color: #555;
+  margin-top: 4px;
+}
+
+/* CTA Button */
+.actk_cta_btn {
+  background: linear-gradient(90deg, #d80606, #b10532, #8b0428);
+  background-size: 200% 100%;
+  color: #fff;
+  border: none;
+  padding: 16px 36px;
+  border-radius: 14px;
+  font-size: 20px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 18px 45px rgba(150,0,0,0.25);
+  transition: background-position .45s ease, transform .3s cubic-bezier(.2,.9,.2,1), box-shadow .4s ease;
+}
+
+.actk_cta_btn:hover {
+  background-position: 100% 0;
+  transform: translateY(-6px) scale(1.05);
+  box-shadow: 0 28px 70px rgba(150,0,0,0.35);
+  animation: actk_wiggle .45s ease;
+}
+
+@keyframes actk_wiggle {
+  0% { transform: translateY(-6px) scale(1.05) translateX(0); }
+  25% { transform: translateY(-6px) scale(1.05) translateX(3px); }
+  50% { transform: translateY(-6px) scale(1.05) translateX(-3px); }
+  75% { transform: translateY(-6px) scale(1.05) translateX(2px); }
+  100% { transform: translateY(-6px) scale(1.05) translateX(0); }
+}
+
+.actk_small_note {
+  color: #ff2e2e;
+  margin-top: 16px;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+/* MOBILE VIEW */
+@media (max-width: 730px) {
+  .actk_stats {
+    gap: 24px;
+  }
+
+  .actk_cta_btn {
+    width: 100%;
+    font-size: 18px;
+  }
+
+  .actk_stat_num {
+    font-size: 30px;
+  }
+}
