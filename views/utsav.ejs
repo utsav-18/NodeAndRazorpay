@@ -31,6 +31,59 @@
   }
 }
 
+/* Bigger avatar on desktop */
+.tst_eco_avatar{
+  width: 140px;
+  height: 140px;
+  border-width: 5px;          /* keeps that premium ring effect */
+  object-fit: cover;
+  border-radius: 50%;
+  box-shadow: 0 10px 24px rgba(2,8,20,.10);
+  transition: transform .35s;
+}
+
+/* Hover effect still clean */
+.tst_eco_card:hover .tst_eco_avatar{
+  transform: translateY(-6px) scale(1.05);
+  box-shadow: 0 22px 46px rgba(255,75,75,.18);
+}
+
+/* Bigger avatar on mobile */
+@media(max-width:640px){
+  .tst_eco_avatar{
+    width: 120px;
+    height: 120px;
+    border-width: 4px;
+  }
+}
+
+@media (max-width:800px){
+  .wrap{
+    margin:120px 12px;
+  }
+}
+@media (max-width:800px){
+  .hero .left,
+  .hero .right {
+    width: 100%;
+    max-width: 600px;   /* NEW */
+    margin: 0 auto;     /* NEW */
+  }
+}
+@media (max-width:800px){
+  .price-card{
+    width: 100%;
+    max-width: 620px;   /* NEW */
+    margin: 0 auto;     /* NEW */
+  }
+  .hero{
+    margin-left: -25px;
+    width: 380px;
+  }
+}
+
+
+
 </style>
 
 </head>
@@ -42,12 +95,13 @@
     <section class="hero" aria-label="Hero">
       <!-- LEFT -->
       <div class="left">
+        <div>
         <div class="badge"><span class="emoji">🔥</span> Best Selling Workshop</div>
-
         <h1 class="fade" style="--d:120ms">
           <span class="title-split" id="ts1"><span>Data Analytics</span></span><br>
           <span class="title-split" id="ts2"><span>Using <span class="accent">MS Excel</span></span></span>
         </h1>
+        </div>
 
         <p class="lead fade" style="--d:200ms">Master the art of data analysis and visualization in this intensive hands-on session. Transform raw data into actionable insights — dashboards, automation & real projects.</p>
 
@@ -200,8 +254,8 @@
           <article class="tst_eco_card" data-tst-index="0" aria-roledescription="slide" aria-label="Slide 1">
             <blockquote class="tst_eco_quote">“Best ₹199 investment for my career. The bonuses alone are worth thousands.”</blockquote>
             <div class="tst_eco_profile">
-              <img class="tst_eco_avatar" src="https://randomuser.me/api/portraits/men/75.jpg" alt="Amit Kumar">
-              <h4 class="tst_eco_name">Amit Kumar</h4>
+              <img class="tst_eco_avatar" src="/images/st1.jpg" alt="Amit Kumar">
+              <h4 class="tst_eco_name">Aditya Kumar</h4>
               <div class="tst_eco_role">STUDENT</div>
               <div class="tst_eco_rate">★★★★★</div>
             </div>
@@ -211,8 +265,8 @@
           <article class="tst_eco_card" data-tst-index="1" aria-roledescription="slide" aria-label="Slide 2">
             <blockquote class="tst_eco_quote">“Learned more in 3 hours than months of trial-and-error. Practical & clear.”</blockquote>
             <div class="tst_eco_profile">
-              <img class="tst_eco_avatar" src="https://randomuser.me/api/portraits/women/68.jpg" alt="Priya Sharma">
-              <h4 class="tst_eco_name">Priya Sharma</h4>
+              <img class="tst_eco_avatar" src="/images/st2.jpg" alt="Priya Sharma">
+              <h4 class="tst_eco_name">Shevej</h4>
               <div class="tst_eco_role">DATA ANALYST</div>
               <div class="tst_eco_rate">★★★★★</div>
             </div>
@@ -222,23 +276,13 @@
           <article class="tst_eco_card" data-tst-index="2" aria-roledescription="slide" aria-label="Slide 3">
             <blockquote class="tst_eco_quote">“The dashboard session was gold — built a portfolio piece I use in interviews.”</blockquote>
             <div class="tst_eco_profile">
-              <img class="tst_eco_avatar" src="https://randomuser.me/api/portraits/men/35.jpg" alt="Rohit Verma">
-              <h4 class="tst_eco_name">Rohit Verma</h4>
+              <img class="tst_eco_avatar" src="/images/st3.jpg" alt="Rohit Verma">
+              <h4 class="tst_eco_name">Asif</h4>
               <div class="tst_eco_role">FREELANCER</div>
               <div class="tst_eco_rate">★★★★★</div>
             </div>
           </article>
 
-          <!-- slide 3 -->
-          <article class="tst_eco_card" data-tst-index="3" aria-roledescription="slide" aria-label="Slide 4">
-            <blockquote class="tst_eco_quote">“Trainers explained complex formulas like a breeze — super practical course.”</blockquote>
-            <div class="tst_eco_profile">
-              <img class="tst_eco_avatar" src="https://randomuser.me/api/portraits/women/32.jpg" alt="Neha Gupta">
-              <h4 class="tst_eco_name">Neha Gupta</h4>
-              <div class="tst_eco_role">BUSINESS ANALYST</div>
-              <div class="tst_eco_rate">★★★★★</div>
-            </div>
-          </article>
         </div>
       </div>
 
