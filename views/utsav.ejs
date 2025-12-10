@@ -8,6 +8,31 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <link rel="stylesheet" href="/css/newStyle.css">
 
+<style>
+  @media (max-width: 520px) {
+  #trn_section {
+    padding: 20px 10px;
+  }
+
+  .trn_image {
+    height: 360px;        /* <-- increased height */
+    object-fit: cover;    /* makes image crop clean */
+    width: 100%;
+    display: block;
+  }
+
+  .trn_heading {
+    font-size: 24px;
+  }
+
+  .trn_text {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+}
+
+</style>
+
 </head>
 <body>
   <div class="top-banner">⭐ Limited Time Offer: <strong>Get <span style="color:#f5ea55">93% OFF</span> Today Only!⭐</strong></div>
@@ -68,7 +93,7 @@
         </div>
 
         <div class="trainer fade" id="trainerCard" style="--d:320ms;opacity:0">
-          <img src="https://randomuser.me/api/portraits/men/45.jpg" alt="trainer">
+          <img src="/images/trainer.jpg" alt="trainer">
           <div>
             <div class="meta">YOUR TRAINER<br><strong>Asif Ansari</strong></div>
             <small>★★★★★ (4.9/5)</small>
@@ -576,7 +601,7 @@
     <!-- left: portrait -->
     <div class="trn_left">
       <figure class="trn_figure" aria-hidden="false">
-        <img id="trn_image" class="trn_image" src="https://www.nordstudio.ch/wp/wp-content/uploads/2018/02/mitarbeiter-business-fotos_05.jpg" alt="Trainer portrait: Asif Ansari">
+        <img id="trn_image" class="trn_image" src="/images/trainer.jpg" alt="Trainer portrait: Asif Ansari">
       </figure>
     </div>
 
