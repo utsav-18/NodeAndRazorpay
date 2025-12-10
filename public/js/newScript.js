@@ -1075,16 +1075,16 @@ document.addEventListener('DOMContentLoaded', function () {
     if (persist) sessionStorage.setItem(SESSION_KEY,'1');
   }
 
-  // random schedule: show first after 3-9s, then every 20-50s
+  // random schedule: show first after 2-9s, then every 20-50s
   function scheduleLoop(){
     if (sessionStorage.getItem(SESSION_KEY) === '1') return;
-    const firstDelay = randInt(3000, 9000);
+    const firstDelay = randInt(2000, 9000);
     setTimeout(function appear(){
       showWidget();
       // auto-hide after random short time 4-8s
-      setTimeout(()=> { hideWidget(false); }, randInt(4200, 8200));
+      setTimeout(()=> { hideWidget(false); }, randInt(3200, 7200));
       // schedule next
-      const next = randInt(20000, 50000);
+      const next = randInt(10000, 40000);
       setTimeout(appear, next);
     }, firstDelay);
   }
