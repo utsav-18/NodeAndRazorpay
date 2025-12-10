@@ -2,10 +2,12 @@
 const razorpay = require('../utils/razorpayClient');
 const crypto = require('crypto');
 
+const DEFAULT_AMOUNT_PAISA = Number(process.env.DEFAULT_AMOUNT_PAISA) || 19900; // ₹199
+
 exports.renderCheckout = (req, res) => {
   // amount can be passed via query or fallback to env default
   const amountFromQuery = Number(req.query.amount) || null;
-  const amount = amountFromQuery || Number(process.env.DEFAULT_AMOUNT_PAISA) || 100; // default 100 paise = ₹1
+  const amount = amountFromQuery || DEFAULT_AMOUNT_PAISA; // default ₹199
   const displayAmount = (amount / 100).toFixed(2);
   res.render('checkout', {
     amount,
@@ -16,14 +18,16 @@ exports.renderCheckout = (req, res) => {
 
 exports.createOrder = async (req, res) => {
   try {
-    const { amount } = req.body;
+    let { amount } = req.body;
     const parsedAmount = parseInt(amount, 10);
-    if (!parsedAmount || isNaN(parsedAmount) || parsedAmount <= 0) {
-      return res.status(400).json({ success: false, error: 'invalid amount' });
-    }
+
+    // If client sent a valid positive integer, use it; otherwise fall back to default
+    const finalAmount = (parsedAmount && !isNaN(parsedAmount) && parsedAmount > 0)
+      ? parsedAmount
+      : DEFAULT_AMOUNT_PAISA;
 
     const options = {
-      amount: parsedAmount,
+      amount: finalAmount,
       currency: 'INR',
       receipt: 'rcpt_' + Date.now(),
       payment_capture: 1
@@ -66,7 +70,7 @@ exports.verifyPayment = async (req, res) => {
       success: true,
       order_id: razorpay_order_id,
       payment_id: razorpay_payment_id,
-      amount: amount || null,
+      amount: amount || DEFAULT_AMOUNT_PAISA,
       receipt: receiptId
     });
   } catch (err) {
