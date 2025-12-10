@@ -2,12 +2,12 @@
 const razorpay = require('../utils/razorpayClient');
 const crypto = require('crypto');
 
-const DEFAULT_AMOUNT_PAISA = Number(process.env.DEFAULT_AMOUNT_PAISA) || 19900; // ₹199
+const DEFAULT_AMOUNT_PAISA = Number(process.env.DEFAULT_AMOUNT_PAISA) || 9900; // ₹99
 
 exports.renderCheckout = (req, res) => {
   // amount can be passed via query or fallback to env default
   const amountFromQuery = Number(req.query.amount) || null;
-  const amount = amountFromQuery || DEFAULT_AMOUNT_PAISA; // default ₹199
+  const amount = amountFromQuery || DEFAULT_AMOUNT_PAISA; // default ₹99
   const displayAmount = (amount / 100).toFixed(2);
   res.render('checkout', {
     amount,
