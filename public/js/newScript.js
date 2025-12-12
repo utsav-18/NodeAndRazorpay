@@ -1169,3 +1169,42 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 }
+
+
+// certifiacte load js
+(function () {
+  const img = document.getElementById("dedge-cert-single-img");
+  const card = document.getElementById("dedge-cert-single-card");
+  const frame = document.querySelector(".dedge-cert-single-frame");
+
+  /* Load animation */
+  if (img) {
+    if (img.complete) img.classList.add("loaded");
+    else img.addEventListener("load", () => img.classList.add("loaded"));
+  }
+
+  /* Reveal on scroll */
+  if (card && "IntersectionObserver" in window) {
+    const io = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        card.classList.add("dedge-visible");
+        io.disconnect();
+      }
+    });
+    io.observe(card);
+  }
+
+  /* Subtle 3D tilt */
+  function isTouch() { return "ontouchstart" in window; }
+  if (!isTouch() && frame) {
+    frame.addEventListener("mousemove", (e) => {
+      const r = frame.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      frame.style.transform = `rotateX(${-(y*8)}deg) rotateY(${x*8}deg)`;
+    });
+    frame.addEventListener("mouseleave", () => {
+      frame.style.transform = `rotateX(0deg) rotateY(0deg)`;
+    });
+  }
+})();
