@@ -1172,6 +1172,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 // certifiacte load js
+
 (function () {
   const img = document.getElementById("dedge-cert-single-img");
   const card = document.getElementById("dedge-cert-single-card");
@@ -1205,6 +1206,54 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     frame.addEventListener("mouseleave", () => {
       frame.style.transform = `rotateX(0deg) rotateY(0deg)`;
+    });
+  }
+})();
+
+
+
+// promo
+// =============================
+// LEFT IMAGE REVEAL + PREMIUM TILT
+// =============================
+(function () {
+  const frame = document.querySelector(".par-img-frame");
+  const img = document.getElementById("par-img");
+
+  if (!frame || !img) return;
+
+  /* Reveal on scroll */
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting) {
+        frame.classList.add("visible");
+        io.disconnect();
+      }
+    }, { threshold: 0.2 });
+
+    io.observe(frame);
+  } else {
+    frame.classList.add("visible");
+  }
+
+  /* Desktop tilt effect */
+  const isTouch = () => "ontouchstart" in window;
+  if (!isTouch()) {
+    frame.addEventListener("mousemove", (e) => {
+      const r = frame.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+
+      const rotateX = -(y * 10);
+      const rotateY = x * 10;
+
+      img.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.03)`;
+      frame.classList.add("tilt-active");
+    });
+
+    frame.addEventListener("mouseleave", () => {
+      img.style.transform = "rotateX(0deg) rotateY(0deg) scale(1)";
+      frame.classList.remove("tilt-active");
     });
   }
 })();
