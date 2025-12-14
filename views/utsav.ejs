@@ -183,6 +183,10 @@
     font-size: 13px;
   }
 }
+.ucta_wrapper {
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
 
 </style>
 
@@ -1044,6 +1048,40 @@
 
   
 <script src="/js/newScript.js"></script>
+<script>
+  // ===== Hide Sticky CTA when Footer Appears (Desktop + Mobile) =====
+(function () {
+  const cta = document.getElementById("ucta_wrapper");
+  const footer = document.querySelector("footer");
+
+  if (!cta || !footer) return;
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          // Footer visible → hide CTA
+          cta.style.opacity = "0";
+          cta.style.transform = "translateY(40px)";
+          cta.style.pointerEvents = "none";
+        } else {
+          // Footer not visible → show CTA
+          cta.style.opacity = "1";
+          cta.style.transform = "translateY(0)";
+          cta.style.pointerEvents = "auto";
+        }
+      });
+    },
+    {
+      root: null,
+      threshold: 0.12 // works well for mobile + desktop
+    }
+  );
+
+  observer.observe(footer);
+})();
+
+</script>
 </body>
 </html>
 
