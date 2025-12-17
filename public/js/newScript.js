@@ -1257,3 +1257,33 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 })();
+// video playing in home tab
+window.addEventListener("DOMContentLoaded", () => {
+  const video = document.getElementById("demoVideo");
+  const poster = document.getElementById("videoPoster");
+  const playBtn = document.getElementById("playBtn");
+
+  if (!video || !poster || !playBtn) return;
+
+  // Initial state
+  video.pause();
+  video.currentTime = 0;
+  video.style.display = "none";
+  poster.style.display = "block";
+  playBtn.style.display = "flex";
+
+  playBtn.addEventListener("click", () => {
+    poster.style.display = "none";
+    video.style.display = "block";
+
+    video.muted = false;
+    video.controls = true;
+    video.play();
+
+    playBtn.style.display = "none";
+  });
+
+  video.addEventListener("ended", () => {
+    playBtn.style.display = "flex";
+  });
+});

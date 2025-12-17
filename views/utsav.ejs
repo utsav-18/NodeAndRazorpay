@@ -245,19 +245,39 @@
 
       <!-- RIGHT -->
       <div class="right" aria-hidden>
-        <div class="device-wrap fade" id="device" style="--d:260ms">
-          <img class="device-img" src="https://images.unsplash.com/photo-1559526324-593bc073d938?w=1200&q=80" alt="dashboard screenshot">
-          <div class="play" id="playBtn" role="button" aria-label="Play demo">▶</div>
-        </div>
 
-        <div class="trainer fade" id="trainerCard" style="--d:320ms;opacity:0">
-          <img src="/images/trainer.jpg" alt="trainer">
-          <div>
-            <div class="meta">YOUR TRAINER<br><strong>Asif Ansari</strong></div>
-            <small>★★★★★ (4.9/5)</small>
-          </div>
-        </div>
-      </div>
+  <!-- VIDEO CONTAINER -->
+  <div class="device-wrap fade" id="device" style="--d:260ms">
+    <!-- REAL POSTER IMAGE -->
+  <img
+    src="/images/video-poster.png"
+    class="video-poster"
+    id="videoPoster"
+    alt="Video preview"
+  />
+
+  <!-- VIDEO -->
+  <video
+    id="demoVideo"
+    class="device-img"
+    src="/Video.mp4"
+    playsinline
+    preload="none"
+  ></video>
+
+    <div class="play" id="playBtn" role="button" aria-label="Play demo"></div>
+  </div>
+
+  <!-- TRAINER CARD (NOW BELOW VIDEO) -->
+  <div class="trainer fade" id="trainerCard" style="--d:320ms">
+    <img src="/images/trainer.jpg" alt="trainer">
+    <div>
+      <div class="meta">YOUR TRAINER<br><strong>Asif Ansari</strong></div>
+      <small>★★★★★ (4.9/5)</small>
+    </div>
+  </div>
+
+</div>
     </section>
   </main>
 
