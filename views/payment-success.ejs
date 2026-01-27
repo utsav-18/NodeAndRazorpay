@@ -164,8 +164,10 @@
       </div>
 
       <div class="actions" id="card-actions">
+<!--
         <a href="/"><button class="btn" type="button">Back to Home</button></a>
-        <button class="btn ghost" id="printBtn" type="button" aria-label="Print receipt">Print / Download</button>
+-->        
+<button class="btn ghost" id="printBtn" type="button" aria-label="Print receipt">Print / Download</button>
       </div>
     </aside>
   </main>
@@ -212,6 +214,11 @@
         showToast('Note: no order/payment IDs available');
       }
     }());
+// auto redirect to WhatsApp group after 3 seconds
+setTimeout(() => {
+  window.location.href = "https://chat.whatsapp.com/EHsbrIMKr6mBYUnlFAmMIz";
+}, 3000); // 3000 ms = 3 seconds
+
   </script>
 </body>
 </html>
